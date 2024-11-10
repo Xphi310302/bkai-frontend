@@ -16,12 +16,10 @@ const MainContent: React.FC = () => {
           <button>TRA CỨU</button>
         </div>
       </div>
-      <div>
-      </div>
       <div className="guide-content">
           <div className="header">TRA CỨU HỒ SƠ TRỰC TUYẾN</div>
           <div className="subheader">
-              Với 4 bước đơn giản Người dân, Doanh nghiệp và Tổ chức có thể nộp hồ sơ trực tuyến và nhận kết quả tại nhà.
+              <font >Với 4 bước đơn giản Người dân, Doanh nghiệp và Tổ chức có thể nộp hồ sơ trực tuyến và nhận kết quả tại nhà.</font>
           </div>
           
           <div className="steps">
