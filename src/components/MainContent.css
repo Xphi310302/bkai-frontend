@@ -1,0 +1,74 @@
+.main-content {
+  text-align: center;
+}
+
+.search-content {
+  background-image: url('https://app-thuduc.tphcm.gov.vn/nss-v6-DVCThuduc-theme/images/dvcThuduc/slide-tpthuduc.jpg'); /* Add background image */
+  display: flex; 
+  min-height: 500px; 
+  width: 100%; /* Maximize the width of search-content */
+  background-size: cover; /* Ensure the image covers the entire area */
+  background-position: center; /* Center the background image */
+}
+
+.search-content {
+  display: flex; /* Enable flex display */
+  align-items: center; /* Center children vertically */
+  justify-content: center; /* Center children horizontally */
+}
+
+
+.search-box h1 {
+  font-size: 2.0rem; /* Adjusted font size */
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7); /* Add thicker shadow to the text */
+  -webkit-text-stroke: 0.5px black; /*Add black border to the text */
+}
+.search-box h3 {
+    font-size: 1.6rem; /* Adjusted font size */
+  text-shadow: 4px 2px 3px rgba(0, 0, 0, 0.7); 
+  -webkit-text-stroke: 0.6px black; 
+}
+
+.search-content {
+  display: flex; /* Enable flex display */
+  align-items: center; /* Center children vertically */
+  justify-content: center; /* Center children horizontally */
+  flex-direction: row; /* Arrange children in a horizontal row */
+}
+
+.search-box input[type="text"] {
+  background-color: white; /* Set background color to white */
+  color: black; /* Set text color to black */
+  border: 1px solid #ccc; /* Add a light border for better visibility */
+  padding: 10px; /* Add padding for better spacing */
+  border-radius: 4px; /* Add slight rounding to corners */
+  width: 300px; /* Allow input to size based on content */
+  margin-right: 10px; /* Add space between input and button */
+}
+
+.search-box select {
+  background-color: white; /* Set background color to white */
+  color: black; /* Set text color to black */
+  border: 1px solid #ccc; /* Add a light border for better visibility */
+  padding: 10px; /* Add padding for better spacing */
+  border-radius: 4px; /* Add slight rounding to corners */
+  width: 200px; /* Allow select to size based on content */
+  margin-right: 10px; /* Add space between select and button */
+  font-weight: bold; /* Make text bold */
+}
+
+.search-box button {
+  background-color: #dda01c; /* Set button background color */
+  color: white; /* Set button text color to white */
+  border: none; /* Remove border */
+  padding: 10px 20px; /* Add padding for better spacing */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  border-radius: 4px; /* Add slight rounding to corners */
+  transition: background-color 0.3s; /* Add transition for hover effect */
+}
+
+.search-box button:hover {
+  background-color: #ee720c; /* Darken button on hover */
+}
+
+

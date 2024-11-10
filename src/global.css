@@ -1,0 +1,17 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column; /* Ensure children stack vertically */
+  background-color: white; /* Change background color to white */
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; 
+  flex: 1; 
+}

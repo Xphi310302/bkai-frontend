@@ -1,0 +1,7 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensure it takes at least the full height */
+  width: 100%;
+  box-sizing: border-box;
+}
