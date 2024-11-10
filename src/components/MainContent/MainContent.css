@@ -3,9 +3,9 @@
 }
 
 .search-content {
-  background-image: url('public/images/slide-tpthuduc.jpg'); /* Add background image */
-  display: flex; 
-  min-height: 500px; 
+  background-image: url("public/images/slide-tpthuduc.jpg"); /* Add background image */
+  display: flex;
+  min-height: 500px;
   width: 100%; /* Maximize the width of search-content */
   background-size: cover; /* Ensure the image covers the entire area */
   background-position: center; /* Center the background image */
@@ -17,18 +17,20 @@
   justify-content: center; /* Center children horizontally */
 }
 
-
 .search-box h1 {
-  font-size: 2.0rem; /* Adjusted font size */
+  font-size: 2rem; /* Adjusted font size */
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7); /* Add thicker shadow to the text */
-  -webkit-text-stroke: 0.8px black; /*Add black border to the text */
+  -webkit-text-stroke: 0.8px black; /* Add black border to the text */
   color: white;
+  font-weight: bold; /* Make text bold */
 }
+
 .search-box h3 {
-  font-size: 1.6rem; /* Adjusted font size */
-  text-shadow: 4px 2px 3px rgba(0, 0, 0, 0.7); 
-  -webkit-text-stroke: 0.4px black; 
+  font-size: 1.4rem; /* Adjusted font size */
+  text-shadow: 4px 2px 3px rgba(0, 0, 0, 0.7);
+  -webkit-text-stroke: 0.2px black;
   color: white;
+ /* Make text bold */
 }
 
 .search-content {
@@ -36,7 +38,6 @@
   align-items: center; /* Center children vertically */
   justify-content: center; /* Center children horizontally */
   flex-direction: row; /* Arrange children in a horizontal row */
-
 }
 
 .search-box input[type="text"] {
@@ -73,5 +74,3 @@
 .search-box button:hover {
   background-color: #ee720c; /* Darken button on hover */
 }
-
-

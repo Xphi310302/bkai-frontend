@@ -1,5 +1,5 @@
 .header {
-  background-color: #00362e;
+  background: linear-gradient(to right, #08261d, #114032);
   color: white;
   width: 100vw; /* Expand header to fit the window in the horizontal axis */
   box-sizing: border-box;
@@ -55,20 +55,23 @@
   text-align: center; /* Align content in the center */
   position: relative; /* Allow for absolute positioning of child elements if needed */
   background-color: white; /* Added background color as white */
+  
 }
 
 .menu {
   list-style: none;
-  /* display: flex; */
-  gap: 20px;
+  display: flex;
+  gap: 40px;
   margin: 0;
-  padding: 0;
-  justify-content: center; /* Align items in the center of header-main */
+  padding: 10px 0; /* Added vertical padding */
+  justify-content: center; 
 }
 
 .menu li {
   display: inline;
 }
+
+
 
 .homepage button img {
   width: 18px; /* Increase the width of the icon */
