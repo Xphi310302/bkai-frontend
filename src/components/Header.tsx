@@ -26,8 +26,7 @@ const Header: React.FC = () => {
           <ul className="menu">
             <li className='homepage'>
               <button >
-                <img src="/          <img src="/public/images/layout_set_logo.png" alt="UBND Thành Phố Thủ Đức" /> {/* Add your logo image */}
-/images/icHome-hv.png" alt="Home"/>
+                <img src="/public/images/icHome-hv.png" alt="Home"/>
               </button>
             </li>
             <li><button>THỦ TỤC HÀNH CHÍNH</button></li>
