@@ -3,7 +3,7 @@
 }
 
 .search-content {
-  background-image: url('src/assets/images/slide-tpthuduc.jpg'); /* Add background image */
+  background-image: url('./assets/images/slide-tpthuduc.jpg'); /* Add background image */
   display: flex; 
   min-height: 500px; 
   width: 100%; /* Maximize the width of search-content */

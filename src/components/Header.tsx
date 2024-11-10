@@ -6,7 +6,7 @@ const Header: React.FC = () => {
     <header className="header">
       <div className="header-top">
         <div className="logo">
-          <img src="src/assets/images/layout_set_logo.png" alt="UBND Thành Phố Thủ Đức" /> {/* Add your logo image */}
+          <img src="/assets/images/layout_set_logo.png" alt="UBND Thành Phố Thủ Đức" /> {/* Add your logo image */}
           {/* <span>UBND THÀNH PHỐ THỦ ĐỨC</span> */}
         </div>
         <div className='top-right-content'>
@@ -26,7 +26,7 @@ const Header: React.FC = () => {
           <ul className="menu">
             <li className='homepage'>
               <button >
-                <img src="src/assets/images/icHome-hv.png" alt="Home"/>
+                <img src="/assets/images/icHome-hv.png" alt="Home"/>
               </button>
             </li>
             <li><button>THỦ TỤC HÀNH CHÍNH</button></li>
