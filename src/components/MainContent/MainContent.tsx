@@ -37,7 +37,7 @@ const MainContent: React.FC = () => {
           </div>
         </div>
         <div className="">
-          <div className="flex items-stretch">
+          <div className="flex items-stretch pb-24">
             <div className="step">
               <div className="bg-lime-600 w-16 h-16 flex items-center justify-center mx-auto">
                 <img src="/images/dang-ki-tai-khoan.png" className="mx-auto" />
