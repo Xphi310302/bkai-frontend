@@ -27,8 +27,8 @@ const MainContent: React.FC = () => {
         </div>
       </div>
       <div className="guide-content">
-        <div className="my-14">
-          <div className="text-lime-600 text-3xl font-bold">
+        <div className="my-14 py-6">
+          <div className="text-lime-600 text-3xl font-bold ">
             TRA CỨU HỒ SƠ TRỰC TUYẾN
           </div>
           <div className="subheader">

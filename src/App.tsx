@@ -6,15 +6,14 @@ import "./App.css";
 import ChatbotPopup from "./components/Chatbot/ChatbotPopup";
 const App: React.FC = () => {
   return (
-    <>
+    <div>
       <ChatbotPopup />
       <div className="App">
         <Header />
         <MainContent />
         <Footer />
       </div>
-      );
-    </>
+    </div>
   );
 };
 

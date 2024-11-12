@@ -58,46 +58,68 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="bg-[#4a5a50] flex justify-between items-start px-60 pt-6 pb-20">
+      <div className="bg-[#4a5a50] flex justify-between items-start px-60 pt-6 pb-28">
+        {" "}
+        {/* Increased bottom padding */}
         {/* Left Side */}
         <div>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-4 my-10">
             <img
               src="/images/layout_set_logo.png" // Placeholder logo
               alt="Thủ Đức Logo"
             />
           </div>
-          <p className="text-sm">
+          <p className="text-sm mb-4 ">
+            {" "}
+            {/* Increased vertical spacing */}
             Địa chỉ: 168 Trương Văn Bang, Phường Thạnh Mỹ Lợi, TP Thủ Đức, Tp.
             Hồ Chí Minh
           </p>
-          <p className="text-sm">Điện thoại: (028) 3740 0509</p>
-          <p className="text-sm">Email: tphuthuduc@tphcm.gov.vn</p>
+          <p className="text-sm mb-4">
+            {" "}
+            {/* Increased vertical spacing */}
+            Điện thoại: (028) 3740 0509
+          </p>
+          <p className="text-sm mb-4">
+            {" "}
+            {/* Increased vertical spacing */}
+            Email: tphuthuduc@tphcm.gov.vn
+          </p>
         </div>
-
         {/* Center Section */}
-        <div className="text-sm space-y-2">
-          <h3 className="font-semibold">Dịch vụ</h3>
-          <ul className="space-y-1">
+        <div className="text-base space-y-4 my-10">
+          {" "}
+          {/* Increased vertical spacing */}
+          <h3 className="font-semibold mb-2">Dịch vụ</h3>{" "}
+          {/* Increased vertical spacing */}
+          <ul className="space-y-2 text-sm">
+            {" "}
+            {/* Increased spacing */}
             <li>Thủ tục hành chính</li>
             <li>Tra cứu kết quả hồ sơ</li>
             <li>Thống kê</li>
           </ul>
         </div>
-
         {/* Right Section */}
-        <div className="text-sm space-y-2">
-          <h3 className="font-semibold">Hướng dẫn</h3>
-          <ul className="space-y-1">
+        <div className="text-base space-y-4 my-10">
+          {" "}
+          {/* Increased vertical spacing */}
+          <h3 className="font-semibold mb-2">Hướng dẫn</h3>{" "}
+          {/* Increased vertical spacing */}
+          <ul className="space-y-2 text-sm">
+            {" "}
+            {/* Increased spacing */}
             <li>Đăng ký tài khoản</li>
             <li>Góp ý kiến</li>
           </ul>
         </div>
-
         {/* Support Section */}
-        <div className="text-sm">
-          <h3 className="font-semibold">Hỗ trợ trực tuyến</h3>
-          <p>Bộ phận tiếp nhận</p>
+        <div className="text-base space-y-4 my-10">
+          {" "}
+          {/* Increased vertical spacing */}
+          <h3 className="font-semibold mb-2">Hỗ trợ trực tuyến</h3>{" "}
+          {/* Increased vertical spacing */}
+          <p className="text-sm">Bộ phận tiếp nhận</p>
           <p className="text-yellow-400 font-bold">(028) 3740 0509</p>
         </div>
       </div>
