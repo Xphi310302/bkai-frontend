@@ -41,7 +41,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
         onFileUpload(url, files[index].name);
       });
     } catch (err) {
-      setError("Upload failed. Please try again.");
+      setError("Tải tệp lên thất bại. Vui lòng thử lại!");
       console.error(err);
     } finally {
       // Hide progress bar after upload is complete
@@ -74,9 +74,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
       />
       <button
         onClick={openFileDialog} // Open file dialog on button click
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
       >
-        Upload Files
+        Tải tệp lên
       </button>
       {error && <p className="text-red-500">{error}</p>}
 
@@ -84,11 +84,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
       {isProgressVisible && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border rounded shadow-lg p-4 z-50">
           <p className="text-gray-600">
-            Uploading: {Math.round(uploadProgress)}%
+            Đang tải lên: {Math.round(uploadProgress)}%
           </p>
           <div className="bg-gray-200 rounded-full h-2">
             <div
-              className="bg-blue-500 h-2 rounded-full"
+              className="bg-green-600 h-2 rounded-full"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
