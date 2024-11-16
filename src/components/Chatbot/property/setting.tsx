@@ -12,7 +12,7 @@ export const setting = {
           fontWeight: "bold",
         }}
       >
-        Thủ Đức City Assistant
+        Civic Bot
       </div>
     ),
     avatar: botAvatar,
@@ -20,7 +20,7 @@ export const setting = {
   },
   tooltip: {
     mode: "CLOSE",
-    text: "Thủ Đức City Assistant 😊",
+    text: "Civic Bot 😊",
   },
   chatButton: {
     icon: chatIcon, // Using the imported chat icon
