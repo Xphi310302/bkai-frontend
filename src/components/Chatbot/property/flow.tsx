@@ -5,6 +5,7 @@ export const flow = {
     path: "end",
   },
   end: {
-    message: "Tạm biệt, hẹn gặp lại nhé!",
+    message:
+      "Xin lỗi, hiện tại tôi chỉ hỗ trợ trả lời các câu hỏi liên quan đến hành chính công và các quy định pháp luật Việt Nam. Vui lòng hỏi các câu hỏi thuộc lĩnh vực này để được hỗ trợ.",
   },
 };
