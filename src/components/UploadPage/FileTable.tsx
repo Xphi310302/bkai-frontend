@@ -17,9 +17,15 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="text-gray-600">
-            <th className="py-2 px-4 border-b text-green-700">Tên file</th>
-            <th className="py-2 px-4 border-b text-green-700">Ngày tạo</th>
-            <th className="py-2 px-4 border-b text-green-700">Hành động</th>
+            <th className="py-2 px-4 border-b text-green-700 w-1/3">
+              Tên file
+            </th>
+            <th className="py-2 px-4 border-b text-green-700 w-1/3">
+              Ngày tạo
+            </th>
+            <th className="py-2 px-4 border-b text-green-700 w-1/3">
+              Hành động
+            </th>
           </tr>
         </thead>
         <tbody>
