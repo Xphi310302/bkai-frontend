@@ -9,7 +9,6 @@ interface UploadedFile {
 
 const UploadPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [activeTab, setActiveTab] = useState("pdf"); // Set initial active tab to "pdf"
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleFileUpload = (fileUrl: string, fileName: string) => {
@@ -36,27 +35,7 @@ const UploadPage: React.FC = () => {
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-blue-600 mb-6">Quản lý dữ liệu</h1>
 
-      {/* Tabs */}
-      <div className="flex space-x-4 mb-6">
-        {["Tài liệu PDF", "Tài liệu Word"].map((tab, index) => (
-          <button
-            key={index}
-            onClick={() => setActiveTab(tab.toLowerCase().replace(" ", ""))}
-            className={`py-2 px-4 rounded-md font-semibold ${
-              activeTab === tab.toLowerCase().replace(" ", "")
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* File Uploader */}
-      <FileUploader onFileUpload={handleFileUpload} />
-
-      {/* Search */}
+      {/* Search and File Uploader */}
       <div className="flex justify-between items-center mb-4">
         <input
           type="text"
@@ -65,6 +44,7 @@ const UploadPage: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-blue-400"
         />
+        <FileUploader onFileUpload={handleFileUpload} />
       </div>
 
       {/* File Table */}

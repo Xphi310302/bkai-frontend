@@ -8,48 +8,45 @@ interface FileUploaderProps {
 const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
   const [files, setFiles] = useState<File[]>([]); // Store the selected files
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0); // Track upload progress
+  const [isProgressVisible, setIsProgressVisible] = useState<boolean>(false); // Control visibility of progress bar
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference to the file input
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files); // Convert FileList to an array
       setFiles(selectedFiles); // Set the selected files
-      resetMessages(); // Clear messages and reset progress
+      resetMessages(); // Clear messages
+
+      // Start uploading files immediately after selection
+      await uploadFiles(selectedFiles);
     }
   };
 
   const resetMessages = () => {
     setError(null); // Clear any previous errors
-    setSuccessMessage(null); // Clear success message
     setUploadProgress(0); // Reset progress
-  };
-
-  const handleUpload = async () => {
-    if (files.length > 0) {
-      try {
-        const urls = await uploadFiles(files);
-        setSuccessMessage("Upload successful!");
-
-        // Call the onFileUpload for each uploaded file
-        urls.forEach((url, index) => {
-          onFileUpload(url, files[index].name);
-        });
-      } catch (err) {
-        setError("Upload failed. Please try again.");
-        console.error(err);
-      }
-    } else {
-      setError("Please select files to upload."); // Error if no files are selected
-    }
+    setIsProgressVisible(true); // Show progress bar
   };
 
   const uploadFiles = async (files: File[]) => {
     const uploadPromises = files.map(
       (file) => uploadToCloudinary(file, updateProgress) // Pass progress updater
     );
-    return Promise.all(uploadPromises); // Upload each file
+    try {
+      const urls = await Promise.all(uploadPromises); // Upload each file
+
+      // Call the onFileUpload for each uploaded file
+      urls.forEach((url, index) => {
+        onFileUpload(url, files[index].name);
+      });
+    } catch (err) {
+      setError("Upload failed. Please try again.");
+      console.error(err);
+    } finally {
+      // Hide progress bar after upload is complete
+      setIsProgressVisible(false);
+    }
   };
 
   const updateProgress = (progress: number) => {
@@ -66,10 +63,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
   };
 
   return (
-    <div className="mt-4 p-4 border rounded shadow bg-white">
-      <p className="text-gray-600 mb-2">
-        Accepted formats: .pdf, .doc, .docx, images
-      </p>
+    <div>
       <input
         type="file"
         accept=".pdf,.doc,.docx,image/*"
@@ -84,24 +78,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
       >
         Upload Files
       </button>
-      <button
-        onClick={handleUpload}
-        className="ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-      >
-        Start Upload
-      </button>
       {error && <p className="text-red-500">{error}</p>}
-      {successMessage && <p className="text-green-500">{successMessage}</p>}
-      {/* Progress bar */}
-      {uploadProgress > 0 && (
-        <div className="mt-2">
+
+      {/* Progress Bar Popup */}
+      {isProgressVisible && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border rounded shadow-lg p-4 z-50">
+          <p className="text-gray-600">
+            Uploading: {Math.round(uploadProgress)}%
+          </p>
           <div className="bg-gray-200 rounded-full h-2">
             <div
               className="bg-blue-500 h-2 rounded-full"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
-          <p className="text-sm text-gray-600">{Math.round(uploadProgress)}%</p>
         </div>
       )}
     </div>
