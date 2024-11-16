@@ -1,19 +1,20 @@
 import React from "react";
-import Header from "./components/Header/Header";
-import MainContent from "./components/MainContent/MainContent";
-import Footer from "./components/Footer/Footer";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage"; // Import the new HomePage
+import UploadPage from "./pages/AdminPage/UploadPage"; // Ensure path is correct
 import "./App.css";
-import ChatbotPopup from "./components/Chatbot/ChatbotPopup";
+
 const App: React.FC = () => {
   return (
-    <div>
-      <ChatbotPopup />
-      <div className="App">
-        <Header />
-        <MainContent />
-        <Footer />
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/" element={<HomePage />} /> {/* Home page route */}
+          <Route path="/upload" element={<UploadPage />} />{" "}
+          {/* Upload page route */}
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 };
 
