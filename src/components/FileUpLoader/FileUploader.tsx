@@ -1,36 +1,67 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { uploadToCloudinary } from "../../services/fileUploadServices";
 
-const FileUploader: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [fileUrl, setFileUrl] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<string | null>(null);
+interface FileUploaderProps {
+  onFileUpload: (fileUrl: string, fileName: string) => void; // Prop to handle file upload
+}
+
+const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
+  const [files, setFiles] = useState<File[]>([]); // Store the selected files
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0); // Track upload progress
+  const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference to the file input
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFile(e.target.files[0]);
-      setError(null);
-      setSuccessMessage(null);
+      const selectedFiles = Array.from(e.target.files); // Convert FileList to an array
+      setFiles(selectedFiles); // Set the selected files
+      resetMessages(); // Clear messages and reset progress
     }
   };
 
+  const resetMessages = () => {
+    setError(null); // Clear any previous errors
+    setSuccessMessage(null); // Clear success message
+    setUploadProgress(0); // Reset progress
+  };
+
   const handleUpload = async () => {
-    if (file) {
+    if (files.length > 0) {
       try {
-        const url = await uploadToCloudinary(file);
-        setFileUrl(url);
-        setFileType(file.type);
-        setError(null);
+        const urls = await uploadFiles(files);
         setSuccessMessage("Upload successful!");
+
+        // Call the onFileUpload for each uploaded file
+        urls.forEach((url, index) => {
+          onFileUpload(url, files[index].name);
+        });
       } catch (err) {
         setError("Upload failed. Please try again.");
-        setSuccessMessage(null);
         console.error(err);
       }
     } else {
-      setError("Please select a file to upload.");
+      setError("Please select files to upload."); // Error if no files are selected
+    }
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    const uploadPromises = files.map(
+      (file) => uploadToCloudinary(file, updateProgress) // Pass progress updater
+    );
+    return Promise.all(uploadPromises); // Upload each file
+  };
+
+  const updateProgress = (progress: number) => {
+    setUploadProgress((prevProgress) => {
+      const newProgress = prevProgress + progress / files.length;
+      return Math.min(newProgress, 100); // Ensure it doesn't exceed 100%
+    });
+  };
+
+  const openFileDialog = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click(); // Trigger the file input click
     }
   };
 
@@ -39,41 +70,38 @@ const FileUploader: React.FC = () => {
       <p className="text-gray-600 mb-2">
         Accepted formats: .pdf, .doc, .docx, images
       </p>
-      {/* File input */}
       <input
         type="file"
         accept=".pdf,.doc,.docx,image/*"
         onChange={handleFileChange}
-        className="mb-2 border rounded p-2"
+        className="hidden"
+        multiple // Allow multiple file selection
+        ref={fileInputRef} // Attach the ref to the file input
       />
-      {/* Upload button */}
       <button
-        onClick={handleUpload}
+        onClick={openFileDialog} // Open file dialog on button click
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
       >
-        Upload File
+        Upload Files
       </button>
-      {/* Feedback messages */}
+      <button
+        onClick={handleUpload}
+        className="ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+      >
+        Start Upload
+      </button>
       {error && <p className="text-red-500">{error}</p>}
-      {successMessage && (
-        <p className="text-green-700">{successMessage}</p>
-      )}{" "}
-      {/* Adjusted green tone */}
-      {/* Display uploaded file */}
-      {fileUrl && fileType && (
+      {successMessage && <p className="text-green-500">{successMessage}</p>}
+      {/* Progress bar */}
+      {uploadProgress > 0 && (
         <div className="mt-2">
-          {fileType.startsWith("image/") ? (
-            <img src={fileUrl} alt="Uploaded" className="max-w-xs rounded" />
-          ) : (
-            <a
-              href={fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline"
-            >
-              Download Uploaded File
-            </a>
-          )}
+          <div className="bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-blue-500 h-2 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+          <p className="text-sm text-gray-600">{Math.round(uploadProgress)}%</p>
         </div>
       )}
     </div>
