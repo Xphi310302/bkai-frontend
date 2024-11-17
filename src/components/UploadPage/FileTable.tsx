@@ -1,5 +1,4 @@
 import React from "react";
-import { deleteFileService } from "../../services/files/fileDeleteServices";
 
 export interface UploadedFile {
   file_id: string;
