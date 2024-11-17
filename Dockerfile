@@ -16,5 +16,5 @@ COPY . .
 # Expose the port that the development server will run on
 EXPOSE 5173
 
-# Start the development server
-CMD ["npm", "run", "dev"]
+# # Start the development server
+# CMD ["npm", "run", "dev"]
