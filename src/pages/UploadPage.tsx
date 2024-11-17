@@ -1,17 +1,9 @@
 import React, { useState } from "react";
-import FileUploader from "../components/UploadPage/FileUploader"; // Corrected the import path
-import FileTable from "../components/UploadPage/FileTable"; // Updated the import path to match the context
-import Pagination from "../components/UploadPage/Pagination"; // Updated the import path to match the context
-import {
-  handleFileUpload,
-  handleDeleteFile,
-} from "../components/UploadPage/handlers/fileHandlers"; // Updated import path
-
-interface UploadedFile {
-  name: string;
-  url: string;
-  dateUploaded: string;
-}
+import FileUploader from "../components/UploadPage/FileUploader";
+import FileTable from "../components/UploadPage/FileTable";
+import Pagination from "../components/UploadPage/Pagination";
+import { UploadedFile } from "../components/UploadPage/FileTable";
+import { onDeleteFile as deleteFileService } from "../services/files/fileDeleteServices";
 
 const UploadPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -23,24 +15,39 @@ const UploadPage: React.FC = () => {
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination logic
   const indexOfLastFile = currentPage * filesPerPage;
   const indexOfFirstFile = indexOfLastFile - filesPerPage;
   const currentFiles = filteredFiles.slice(indexOfFirstFile, indexOfLastFile);
-  const totalPages = Math.ceil(filteredFiles.length / filesPerPage) || 1; // Ensure at least 1 page
+  const totalPages = Math.ceil(filteredFiles.length / filesPerPage) || 1;
 
-  const onFileUpload = (fileUrl: string, fileName: string) =>
-    handleFileUpload(fileUrl, fileName, setUploadedFiles);
-  const onDeleteFile = (url: string) => handleDeleteFile(url, setUploadedFiles);
+  const onFileUpload = (fileId: string, fileUrl: string, fileName: string) => {
+    setUploadedFiles((prevFiles) => [
+      ...prevFiles,
+      {
+        file_id: fileId,
+        name: fileName,
+        url: fileUrl,
+        dateUploaded: new Date().toISOString(),
+      },
+    ]);
+  };
+
+  const onDeleteFile = async (fileId: string) => {
+    try {
+      await deleteFileService(fileId);
+      setUploadedFiles((prevFiles) =>
+        prevFiles.filter((file) => file.file_id !== fileId)
+      );
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    }
+  };
 
   return (
     <div className="p-6 bg-gradient-to-b from-white to-green-100 min-h-screen">
-      {/* Page Title */}
       <h1 className="text-3xl font-bold text-green-700 mb-6">
         Quản lý dữ liệu
       </h1>
-
-      {/* Search and File Uploader */}
       <div className="flex justify-between items-center mb-4">
         <input
           type="text"
@@ -51,11 +58,7 @@ const UploadPage: React.FC = () => {
         />
         <FileUploader onFileUpload={onFileUpload} />
       </div>
-
-      {/* File Table */}
       <FileTable files={currentFiles} onDeleteFile={onDeleteFile} />
-
-      {/* Pagination Controls */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

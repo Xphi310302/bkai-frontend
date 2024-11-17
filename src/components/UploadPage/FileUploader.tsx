@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
-import { uploadToCloudinary } from "../../services/fileUploadServices";
+import { uploadToCloudinary } from "../../services/files/fileUploadServices";
 
 interface FileUploaderProps {
-  onFileUpload: (fileUrl: string, fileName: string) => void; // Prop to handle file upload
+  onFileUpload: (fileID: string, fileUrl: string, fileName: string) => void; // Prop to handle file upload
 }
 
 const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
@@ -42,17 +42,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
   const uploadFiles = async (files: File[]) => {
     const uploadPromises = files.map(async (file) => {
       setUploadingCount((prev) => prev + 1); // Increment uploading count
-      const { url, status } = await uploadToCloudinary(file, () => {}); // Get URL and status
+      const { id, url, status } = await uploadToCloudinary(file, () => {}); // Get URL and status
       setUploadingCount((prev) => prev - 1); // Decrement uploading count after upload
-      return { url, status }; // Return the result
+      return { id, url, name: file.name, status }; // Include name in the return
     });
 
     try {
-      await Promise.all(uploadPromises); // Upload each file
+      const results = await Promise.all(uploadPromises); // Upload each file
 
       // Call the onFileUpload for each uploaded file
-      files.forEach((file) => {
-        onFileUpload(file.name, file.name); // Assuming you want to pass the file name as URL for now
+      results.forEach((result) => {
+        onFileUpload(result.id, result.url, result.name); // Pass id, url, and name
       });
     } catch (err) {
       setError("Tải tệp lên thất bại. Vui lòng thử lại!");
@@ -108,7 +108,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
           </p>
         </div>
       )}
-      <style jsx>{`
+      <style>{`
         @keyframes loading {
           0% {
             width: 0%;

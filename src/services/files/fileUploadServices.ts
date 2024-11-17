@@ -3,7 +3,7 @@ import axios from "axios";
 export const uploadToCloudinary = async (
   file: File,
   setUploadProgress: (progress: number) => void
-): Promise<{ url: string; status: string }> => { // Update return type
+): Promise<{ url: string; status: string; id: string }> => { // Update return type to include id
   const formData = new FormData();
   formData.append("file", file);
 
@@ -26,7 +26,8 @@ export const uploadToCloudinary = async (
       }
     );
     const url = response.data.url; // Assuming your backend returns the URL
-    return { url, status: "success" }; // Return URL and status
+    const id = response.data.file_id; 
+    return { id, url, status: "success" }; // Return URL, status, and another ID
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Upload failed:", error.response?.data || error.message);

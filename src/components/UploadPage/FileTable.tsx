@@ -1,6 +1,8 @@
 import React from "react";
+import { onDeleteFile as deleteFileService } from "../../services/files/fileDeleteServices";
 
-interface UploadedFile {
+export interface UploadedFile {
+  file_id: string;
   name: string;
   url: string;
   dateUploaded: string;
@@ -8,10 +10,18 @@ interface UploadedFile {
 
 interface FileTableProps {
   files: UploadedFile[];
-  onDeleteFile: (url: string) => void;
+  onDeleteFile: (fileId: string) => void; // Ensure this prop is defined
 }
 
 const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
+  const handleDelete = async (fileId: string) => {
+    try {
+      await onDeleteFile(fileId); // Call the onDeleteFile function
+    } catch (error) {
+      console.error("Failed to delete file:", error);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <table className="w-full text-left border-collapse">
@@ -31,7 +41,7 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
         <tbody>
           {files.length > 0 ? (
             files.map((file) => (
-              <tr key={file.url} className="hover:bg-gray-100">
+              <tr key={file.file_id} className="hover:bg-gray-100">
                 <td className="py-2 px-4 border-b">{file.name}</td>
                 <td className="py-2 px-4 border-b">{file.dateUploaded}</td>
                 <td className="py-2 px-4 border-b">
@@ -45,7 +55,7 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
                       Tải xuống
                     </a>
                     <button
-                      onClick={() => onDeleteFile(file.url)}
+                      onClick={() => handleDelete(file.file_id)} // Call handleDelete with file_id
                       className="text-red-500 underline"
                     >
                       Xóa
