@@ -1,20 +1,15 @@
-# Use the official Node.js image as the base image for development
-FROM node:18
+# Dockerfile
+# Start of Selection
+FROM node:20-alpine
+# End of Selection
 
-# Set the working directory
-WORKDIR /app
+WORKDIR /app 
 
-# Copy package.json and package-lock.json (if available)
-COPY package.json package-lock.json ./
 
-# Install dependencies
+COPY package*.json ./  
+
 RUN npm install
 
-# Copy the rest of the application code
-COPY . .
+COPY . .  
 
-# Expose the port that the development server will run on
-EXPOSE 5173
-
-# # Start the development server
-# CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev"]  

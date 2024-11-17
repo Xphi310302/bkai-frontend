@@ -7,7 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/app  # Mount the current directory to /app in the container
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     ports:
       - "5173:5173"  # Map port 5173 in the container to port 5173 on the host
     command: npm run dev  # Start the development server
