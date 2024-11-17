@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { uploadToCloudinary } from "../../services/files/fileUploadServices";
+import { uploadToCloudinary } from "../../services/files/fileUploadService";
 
 interface FileUploaderProps {
   onFileUpload: (fileID: string, fileUrl: string, fileName: string) => void; // Prop to handle file upload
@@ -92,7 +92,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
 
       {/* Loading Bar Popup */}
       {isProgressVisible && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-50 border border-green-300 rounded-lg shadow-lg p-6 z-50 transition-transform transform scale-105">
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-50 border border-green-300 rounded-lg shadow-lg p-6 z-50 transition-transform scale-105">
           <p className="text-green-800 font-bold text-lg">
             Đang tải lên... {uploadingCount} tệp đang được xử lý
           </p>{" "}
