@@ -12,7 +12,7 @@ export const uploadToCloudinary = async (
 
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/files/upload`, // Ensure this URL is correct
+      `${import.meta.env.VITE_BACKEND_URL}/files`, // Ensure this URL is correct
       formData,
       {
         onUploadProgress: (progressEvent) => {
