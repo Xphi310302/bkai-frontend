@@ -1,10 +1,9 @@
 import axios from "axios";
 
-
 export const uploadToCloudinary = async (
   file: File,
   setUploadProgress: (progress: number) => void
-): Promise<string> => {
+): Promise<{ url: string; status: string }> => { // Update return type
   const formData = new FormData();
   formData.append("file", file);
 
@@ -22,12 +21,12 @@ export const uploadToCloudinary = async (
           setUploadProgress(percentCompleted); // Update progress
         },
         headers: {
-                'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data'
         },
       }
     );
     const url = response.data.url; // Assuming your backend returns the URL
-    return url; // URL of the uploaded file
+    return { url, status: "success" }; // Return URL and status
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Upload failed:", error.response?.data || error.message);
@@ -38,6 +37,3 @@ export const uploadToCloudinary = async (
     }
   }
 };
-
-
-

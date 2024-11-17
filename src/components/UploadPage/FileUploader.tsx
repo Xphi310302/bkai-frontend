@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { uploadToCloudinary } from "../../services/fileUploadServices";
 
 interface FileUploaderProps {
@@ -8,9 +8,19 @@ interface FileUploaderProps {
 const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
   const [files, setFiles] = useState<File[]>([]); // Store the selected files
   const [error, setError] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0); // Track upload progress
   const [isProgressVisible, setIsProgressVisible] = useState<boolean>(false); // Control visibility of progress bar
+  const [uploadingCount, setUploadingCount] = useState<number>(0); // Track number of files being uploaded
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference to the file input
+
+  useEffect(() => {
+    // Clear files when component unmounts or when navigating away
+    return () => {
+      setFiles([]);
+      setError(null);
+      setIsProgressVisible(false);
+      setUploadingCount(0);
+    };
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -25,20 +35,24 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
 
   const resetMessages = () => {
     setError(null); // Clear any previous errors
-    setUploadProgress(0); // Reset progress
     setIsProgressVisible(true); // Show progress bar
+    setUploadingCount(0); // Reset uploading count
   };
 
   const uploadFiles = async (files: File[]) => {
-    const uploadPromises = files.map(
-      (file) => uploadToCloudinary(file, updateProgress) // Pass progress updater
-    );
+    const uploadPromises = files.map(async (file) => {
+      setUploadingCount((prev) => prev + 1); // Increment uploading count
+      const { url, status } = await uploadToCloudinary(file, () => {}); // Get URL and status
+      setUploadingCount((prev) => prev - 1); // Decrement uploading count after upload
+      return { url, status }; // Return the result
+    });
+
     try {
-      const urls = await Promise.all(uploadPromises); // Upload each file
+      await Promise.all(uploadPromises); // Upload each file
 
       // Call the onFileUpload for each uploaded file
-      urls.forEach((url, index) => {
-        onFileUpload(url, files[index].name);
+      files.forEach((file) => {
+        onFileUpload(file.name, file.name); // Assuming you want to pass the file name as URL for now
       });
     } catch (err) {
       setError("Tải tệp lên thất bại. Vui lòng thử lại!");
@@ -49,18 +63,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
     }
   };
 
-  const updateProgress = (progress: number) => {
-    setUploadProgress((prevProgress) => {
-      const newProgress = prevProgress + progress / files.length;
-      return Math.min(newProgress, 100); // Ensure it doesn't exceed 100%
-    });
-  };
-
   const openFileDialog = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click(); // Trigger the file input click
     }
   };
+
+  const progressPercentage =
+    ((files.length - uploadingCount) / files.length) * 100; // Calculate progress percentage
 
   return (
     <div>
@@ -80,20 +90,37 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
       </button>
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Progress Bar Popup */}
+      {/* Loading Bar Popup */}
       {isProgressVisible && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border rounded shadow-lg p-4 z-50">
-          <p className="text-gray-600">
-            Đang tải lên: {Math.round(uploadProgress)}%
-          </p>
-          <div className="bg-gray-200 rounded-full h-2">
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-50 border border-green-300 rounded-lg shadow-lg p-6 z-50 transition-transform transform scale-105">
+          <p className="text-green-800 font-bold text-lg">
+            Đang tải lên... {uploadingCount} tệp đang được xử lý
+          </p>{" "}
+          {/* Display number of files being processed */}
+          <div className="bg-green-200 rounded-full h-2 mt-2">
             <div
-              className="bg-green-600 h-2 rounded-full"
-              style={{ width: `${uploadProgress}%` }}
+              className="bg-green-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progressPercentage}%` }} // Set width based on progress percentage
             />
           </div>
+          <p className="text-green-600 mt-2">
+            Hãy kiên nhẫn, chúng tôi đang xử lý tệp của bạn!
+          </p>
         </div>
       )}
+      <style jsx>{`
+        @keyframes loading {
+          0% {
+            width: 0%;
+          }
+          50% {
+            width: 50%;
+          }
+          100% {
+            width: 100%;
+          }
+        }
+      `}</style>
     </div>
   );
 };
