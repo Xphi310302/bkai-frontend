@@ -1,15 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FileUploader from "../components/UploadPage/FileUploader";
 import FileTable from "../components/UploadPage/FileTable";
 import Pagination from "../components/UploadPage/Pagination";
 import { UploadedFile } from "../components/UploadPage/FileTable";
 import { deleteFileService } from "../services/files/fileDeleteService";
+import { getFilesService } from "../services/files/fileReadService"; // Import the service
 
 const UploadPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const filesPerPage = 10;
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      try {
+        const files = await getFilesService(); // Fetch files from the service
+        setUploadedFiles(files); // Update state with fetched files
+      } catch (error) {
+        console.error("Error fetching files:", error);
+      }
+    };
+
+    fetchFiles(); // Call the fetch function
+  }, []); // Empty dependency array to run only on mount
 
   const filteredFiles = uploadedFiles.filter((file) =>
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -24,7 +38,7 @@ const UploadPage: React.FC = () => {
     setUploadedFiles((prevFiles) => [
       ...prevFiles,
       {
-        file_id: fileId,
+        fileId: fileId,
         name: fileName,
         url: fileUrl,
         dateUploaded: new Date().toISOString(),
@@ -36,7 +50,7 @@ const UploadPage: React.FC = () => {
     try {
       await deleteFileService(fileId);
       setUploadedFiles((prevFiles) =>
-        prevFiles.filter((file) => file.file_id !== fileId)
+        prevFiles.filter((file) => file.fileId !== fileId)
       );
     } catch (error) {
       console.error("Error deleting file:", error);

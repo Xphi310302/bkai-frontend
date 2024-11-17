@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface UploadedFile {
-  file_id: string;
+  fileId: string;
   name: string;
   url: string;
   dateUploaded: string;
@@ -40,7 +40,7 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
         <tbody>
           {files.length > 0 ? (
             files.map((file) => (
-              <tr key={file.file_id} className="hover:bg-gray-100">
+              <tr key={file.fileId} className="hover:bg-gray-100">
                 <td className="py-2 px-4 border-b">{file.name}</td>
                 <td className="py-2 px-4 border-b">{file.dateUploaded}</td>
                 <td className="py-2 px-4 border-b">
@@ -54,7 +54,7 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
                       Tải xuống
                     </a>
                     <button
-                      onClick={() => handleDelete(file.file_id)} // Call handleDelete with file_id
+                      onClick={() => handleDelete(file.fileId)} // Call handleDelete with fileId
                       className="text-red-500 underline"
                     >
                       Xóa

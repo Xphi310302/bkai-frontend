@@ -7,8 +7,6 @@ export const uploadToCloudinary = async (
   const formData = new FormData();
   formData.append("file", file);
 
-  console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL); // Log the backend URL
-
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/files`, // Ensure this URL is correct
