@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    image: civic-bot-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app  # Mount the current directory to /app in the container
+    ports:
+      - "5173:5173"  # Map port 3000 in the container to port 3000 on the host
+    command: npm run dev  # Start the development server
+    working_dir: /app  # Set the working directory

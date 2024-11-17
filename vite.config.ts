@@ -8,5 +8,9 @@ export default defineConfig({
     alias:{
       src: "/src"
     }
-  }
+  },
+  server: {
+  host: '0.0.0.0', // Listen on all interfaces
+  port: 5173,      // Specify the port if needed
+},
 })
