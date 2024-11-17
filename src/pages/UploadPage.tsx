@@ -3,7 +3,7 @@ import FileUploader from "../components/UploadPage/FileUploader";
 import FileTable from "../components/UploadPage/FileTable";
 import Pagination from "../components/UploadPage/Pagination";
 import { UploadedFile } from "../components/UploadPage/FileTable";
-import { onDeleteFile as deleteFileService } from "../services/files/fileDeleteServices";
+import { deleteFileService } from "../services/files/fileDeleteServices";
 
 const UploadPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
