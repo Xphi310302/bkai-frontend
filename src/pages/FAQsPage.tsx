@@ -14,7 +14,7 @@ const FAQsPage: React.FC = () => {
         const docs = await getDocuments();
         setDocuments(docs);
       } catch (error) {
-        console.error("Failed to load documents:", error);
+        console.error("Không thể tải tài liệu:", error);
       }
     };
     init();
@@ -25,7 +25,7 @@ const FAQsPage: React.FC = () => {
       const documentFaqs = await getFAQsByDocument(documentId);
       setFaqs((prev) => new Map(prev).set(documentId, documentFaqs));
     } catch (error) {
-      console.error("Failed to import FAQs:", error);
+      console.error("Không thể nhập FAQs:", error);
     }
   };
 
@@ -48,13 +48,13 @@ const FAQsPage: React.FC = () => {
     <div className="bg-gradient-to-b from-green-50 to-green-100 min-h-screen font-sans">
       <div className="text-center py-8">
         <h1 className="text-4xl font-extrabold text-green-800 mb-6">
-          New FAQs
+          FAQs Mới
         </h1>
         <button
           className="bg-green-600 text-white px-8 py-3 rounded-full font-medium shadow-lg hover:bg-green-700 transition"
           onClick={toggleDocumentSelector}
         >
-          Import FAQs
+          Nhập FAQs
         </button>
       </div>
       <div className="px-8">
@@ -95,7 +95,7 @@ type FAQItemProps = {
 };
 
 const FAQItem: React.FC<FAQItemProps> = ({ faq, onSave }) => {
-  const [isAnswerVisible, setAnswerVisible] = useState(true); // Set answer visible by default
+  const [isAnswerVisible, setAnswerVisible] = useState(true);
   const [isEditing, setEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(faq.answer);
 
@@ -125,7 +125,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onSave }) => {
             className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
             onClick={toggleEditMode}
           >
-            {isEditing ? "Save" : "Edit"}
+            {isEditing ? "Lưu" : "Chỉnh sửa"}
           </button>
         </div>
       </div>
@@ -162,7 +162,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <div className="bg-white w-1/3 p-6 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-green-800 mb-4 text-center">
-        Select Documents to Import FAQs
+        Chọn Tài Liệu Để Nhập FAQs
       </h2>
       <div className="space-y-4">
         {documents.map((doc) => (
@@ -177,7 +177,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
           >
             <span className="text-green-800 font-medium">{doc.name}</span>
             {importedFaqs.has(doc.id) && (
-              <span className="text-green-600 font-bold">Imported</span>
+              <span className="text-green-600 font-bold">Đã Nhập</span>
             )}
           </div>
         ))}
@@ -186,7 +186,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
         className="mt-6 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
         onClick={onClose}
       >
-        Close
+        Đóng
       </button>
     </div>
   </div>

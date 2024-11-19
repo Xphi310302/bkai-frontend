@@ -6,9 +6,9 @@ const Navigation: React.FC = () => {
   const [activeLink, setActiveLink] = useState(location.pathname);
 
   const navLinks = [
-    { path: "/upload", label: "Upload" },
-    { path: "/faqs", label: "FAQs" },
-    { path: "/settings", label: "Dashboard" },
+    { path: "/upload", label: <strong>Tải lên</strong> },
+    { path: "/faqs", label: <strong>Câu hỏi thường gặp</strong> },
+    { path: "/dasboard", label: <strong>Bảng điều khiển</strong> },
   ];
 
   return (
@@ -20,11 +20,15 @@ const Navigation: React.FC = () => {
           className={`
             text-white font-bold text-xl transition-all duration-300 ease-in-out 
             px-3 py-2 rounded-lg 
-            ${activeLink === "/" ? "bg-green-800 shadow-lg" : "hover:bg-green-600"}
+            ${
+              activeLink === "/"
+                ? "bg-green-800 shadow-lg"
+                : "hover:bg-green-600"
+            }
             transform hover:scale-105 active:scale-95
           `}
         >
-          Home
+          Trang Chủ
         </Link>
         <ul className="flex space-x-6">
           {navLinks.map((link) => (
