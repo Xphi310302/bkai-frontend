@@ -95,7 +95,7 @@ type FAQItemProps = {
 };
 
 const FAQItem: React.FC<FAQItemProps> = ({ faq, onSave }) => {
-  const [isAnswerVisible, setAnswerVisible] = useState(false);
+  const [isAnswerVisible, setAnswerVisible] = useState(true); // Set answer visible by default
   const [isEditing, setEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(faq.answer);
 
