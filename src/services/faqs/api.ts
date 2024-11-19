@@ -14,7 +14,7 @@ export async function getFAQsByDocument(documentId: string): Promise<FAQ[]> {
         id: documentId === 'doc1' ? 1 : 3,
         question: documentId === 'doc1' ? "What is coaching?" : "How to get started?",
         answer: documentId === 'doc1' ? "Coaching focuses on personal development." : "Contact our support team.",
-        documentId
+        file_id: documentId // Ensure file_id is set correctly
       }
     ];
   }
@@ -26,8 +26,8 @@ export async function getDocuments(): Promise<Document[]> {
     return response.data;
   } catch (error) {
     return [
-      { id: "doc1", name: "Getting Started Guide" },
-      { id: "doc2", name: "Support Documentation" }
+      { id: "doc1", name: "Tài liệu về tư vấn đất đai" },
+      { id: "doc2", name: "Tài liệu đăng ký kinh doanh" }
     ];
   }
 }
