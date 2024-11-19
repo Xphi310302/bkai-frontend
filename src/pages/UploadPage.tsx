@@ -58,7 +58,7 @@ const UploadPage: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-b from-white to-green-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-b from-green-50 to-green-100 min-h-screen font-sans">
       <h1 className="text-3xl font-bold text-green-700 mb-6">
         Quản lý dữ liệu
       </h1>
