@@ -25,7 +25,7 @@ const FAQsPage: React.FC = () => {
       const documentFaqs = await getFAQsByDocument(documentId);
       setFaqs((prev) => new Map(prev).set(documentId, documentFaqs));
     } catch (error) {
-      console.error("Không thể nhập FAQs:", error);
+      console.error("Không thể nhập câu hỏi thường gặp:", error);
     }
   };
 
@@ -48,13 +48,13 @@ const FAQsPage: React.FC = () => {
     <div className="bg-gradient-to-b from-green-50 to-green-100 min-h-screen font-sans">
       <div className="text-center py-8">
         <h1 className="text-4xl font-extrabold text-green-800 mb-6">
-          FAQs Mới
+          Tạo Câu Hỏi Thường Gặp Mới
         </h1>
         <button
           className="bg-green-600 text-white px-8 py-3 rounded-full font-medium shadow-lg hover:bg-green-700 transition"
           onClick={toggleDocumentSelector}
         >
-          Nhập FAQs
+          Nhập Câu Hỏi Thường Gặp
         </button>
       </div>
       <div className="px-8">
@@ -162,7 +162,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <div className="bg-white w-1/3 p-6 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-green-800 mb-4 text-center">
-        Chọn Tài Liệu Để Nhập FAQs
+        Chọn Tài Liệu Để Nhập Câu Hỏi Thường Gặp
       </h2>
       <div className="space-y-4">
         {documents.map((doc) => (
