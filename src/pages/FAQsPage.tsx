@@ -48,26 +48,20 @@ const FAQsPage: React.FC = () => {
   };
 
   return (
-    <div id="faqs-page" className="max-w-2xl mx-auto p-8">
-      <div className="text-center mb-8">
-        <span className="bg-green-500 text-white py-2 px-4 rounded inline-block mb-4">
-          GOT A QUESTION?
-        </span>
-        <h1 className="text-4xl mb-4 text-green-700">New FAQs</h1>
-        <button className="bg-green-500 text-white border-none py-2 px-4 rounded cursor-pointer text-base transition duration-200 ease-in-out hover:bg-green-600">
+    <div id="faqs-page">
+      <div className="faq-header">
+        <span className="faq-badge">GOT A QUESTION?</span>
+        <h1 className="faq-title">New FAQs</h1>
+        <button className="import-btn" onClick={toggleDocumentSelector}>
           Import FAQs
         </button>
       </div>
-      <div className="space-y-4">
+      <div className="documents-container">
         {Array.from(faqs.keys()).map((docId) => {
           const documentFAQs = faqs.get(docId) || [];
           return (
-            <div
-              className="bg-white rounded-lg mb-4 overflow-hidden border border-green-200 shadow-sm p-6"
-              key={docId}
-              data-document-id={docId}
-            >
-              <h2 className="text-2xl mb-4 text-green-700">
+            <div className="faq-document" key={docId} data-document-id={docId}>
+              <h2 className="document-title">
                 {documents.find((d) => d.id === docId)?.name}
               </h2>
               {documentFAQs.map((faq) => (
@@ -86,3 +80,5 @@ const FAQsPage: React.FC = () => {
     </div>
   );
 };
+
+export default FAQsPage;
