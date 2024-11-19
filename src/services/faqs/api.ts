@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { FAQ, Document } from '../../components/FAQsPage/types';
+import type { FAQ, Document } from './types';
 
 const API_URL = 'https://api.example.com';
 

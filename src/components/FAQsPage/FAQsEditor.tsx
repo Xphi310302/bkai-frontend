@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { updateFAQ } from "../../pages/FAQsPage/api";
+import { updateFAQ } from "../../services/faqs/api";
 import type { FAQ } from "./types";
 
 interface FAQEditorProps {
@@ -64,3 +64,5 @@ const FAQEditor: React.FC<FAQEditorProps> = ({ faq, onSave }) => {
 };
 
 export default FAQEditor;
+
+

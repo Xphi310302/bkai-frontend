@@ -2,7 +2,7 @@ export interface FAQ {
   id: number;
   question: string;
   answer: string;
-  documentId: string;
+  file_id: string;
 }
 
 export interface Document {
