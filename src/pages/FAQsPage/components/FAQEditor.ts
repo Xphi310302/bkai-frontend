@@ -1,5 +1,5 @@
 import { updateFAQ } from '../api';
-import type { FAQ } from '../types';
+import type { FAQ } from '../../../components/FAQsPage/types';
 
 export class FAQEditor {
   private faq: HTMLElement;

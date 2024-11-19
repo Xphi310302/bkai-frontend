@@ -1,0 +1,253 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: #1a1a1a;
+  background-color: #ffffff;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.faq-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.faq-badge {
+  background-color: #22c55e;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.faq-title {
+  font-size: 2.5rem;
+  margin: 0 0 1rem 0;
+  color: #15803d;
+}
+
+.import-btn {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.import-btn:hover {
+  background-color: #15803d;
+}
+
+.faq-document {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f0fdf4;
+  border-radius: 8px;
+  border: 1px solid #dcfce7;
+}
+
+.document-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #15803d;
+}
+
+.faq-item {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border: 1px solid #dcfce7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.faq-question {
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  user-select: none;
+}
+
+.faq-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.faq-edit-btn {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.faq-edit-btn:hover {
+  background-color: #15803d;
+}
+
+.faq-question:hover {
+  background-color: #f0fdf4;
+}
+
+.faq-answer {
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-answer.active {
+  padding: 1rem;
+  max-height: 500px;
+  background-color: #f0fdf4;
+}
+
+.faq-toggle {
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+.faq-toggle::before,
+.faq-toggle::after {
+  content: '';
+  position: absolute;
+  background-color: #22c55e;
+  transition: transform 0.3s ease;
+}
+
+.faq-toggle::before {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.faq-toggle::after {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.faq-toggle.active::before {
+  transform: translateX(-50%) rotate(90deg);
+}
+
+.faq-edit-input,
+.faq-edit-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #22c55e;
+  border-radius: 4px;
+  background: white;
+  color: #1a1a1a;
+  font-family: inherit;
+}
+
+.faq-edit-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.import-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.document-list {
+  margin: 1.5rem 0;
+}
+
+.document-item {
+  margin-bottom: 0.75rem;
+}
+
+.document-select-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #22c55e;
+  color: #15803d;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.document-select-btn:not([disabled]):hover {
+  background: #f0fdf4;
+  transform: translateY(-1px);
+}
+
+.document-select-btn.imported {
+  background: #f0fdf4;
+  border-color: #dcfce7;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.imported-badge {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.modal-close {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #22c55e;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+  background: #15803d;
+}

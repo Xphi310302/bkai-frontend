@@ -1,4 +1,4 @@
-import type { Document } from '../types';
+import type { Document } from '../../../components/FAQsPage/types';
 
 export class DocumentSelector {
   private modal: HTMLElement;
