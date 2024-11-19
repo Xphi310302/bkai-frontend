@@ -16,7 +16,13 @@ const Navigation: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center">
         <Link
           to="/"
-          className="text-white font-bold text-xl transition-transform hover:scale-105 active:scale-95"
+          onClick={() => setActiveLink("/")}
+          className={`
+            text-white font-bold text-xl transition-all duration-300 ease-in-out 
+            px-3 py-2 rounded-lg 
+            ${activeLink === "/" ? "bg-green-800 shadow-lg" : "hover:bg-green-600"}
+            transform hover:scale-105 active:scale-95
+          `}
         >
           Home
         </Link>
