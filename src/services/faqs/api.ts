@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { FAQ, Document } from './types';
+import type { FAQ, Document } from '../../components/FAQsPage/types';
 
 const API_URL = 'https://api.example.com';
 
@@ -37,7 +37,7 @@ export async function updateFAQ(faq: FAQ): Promise<FAQ> {
     const response = await axios.put(`${API_URL}/faqs/${faq.id}`, {
       question: faq.question,
       answer: faq.answer,
-      documentId: faq.documentId
+      documentId: faq.file_id
     });
     return response.data;
   } catch (error) {

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getFAQsByDocument, getDocuments } from "../services/faqs/api";
 import type { FAQ, Document } from "../components/FAQsPage/types";
-import FAQsEditor from "../components/FAQsPage/FAQsEditor";
 
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
