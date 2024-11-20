@@ -1,5 +1,6 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { Flow as OriginalFlow, Block as OriginalBlock } from "react-chatbotify"; // Adjust import as necessary
 
 const BACK_END_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -8,6 +9,17 @@ interface Params {
   userInput: string;
   injectMessage: (message: string) => Promise<void>;
 }
+
+// Extend the OriginalBlock to include async message handling
+interface ExtendedBlock extends OriginalBlock {
+  message: string | void | ((params: Params) => Promise<string | void>);
+}
+
+// Extend the OriginalFlow to use ExtendedBlock
+interface ExtendedFlow extends OriginalFlow {
+  [key: string]: ExtendedBlock;
+}
+
 const call_openai = async (params: Params) => {
   // Check if conversation_id exists in local storage
   if (!params.conversation_id) {
@@ -42,7 +54,8 @@ const call_openai = async (params: Params) => {
   }
 };
 
-const flow = {
+// Define the flow using the ExtendedFlow type
+const flow: ExtendedFlow = {
   start: {
     message:
       "Xin chào! Tôi là Civic Bot. Rất vui được hỗ trợ bạn với các thủ tục hành chính công. Bạn cần giúp đỡ gì ạ?",
@@ -50,7 +63,6 @@ const flow = {
   },
   loop: {
     message: async (params: Params): Promise<string | void> => {
-      // Updated return type
       await call_openai(params);
       return; // Ensure it returns void
     },
