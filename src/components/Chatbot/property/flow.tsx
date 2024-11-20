@@ -1,8 +1,12 @@
+// src/components/Chatbot/property/flow.tsx
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { Flow as OriginalFlow, Block as OriginalBlock } from "react-chatbotify"; // Adjust import as necessary
-
 const BACK_END_URL = import.meta.env.VITE_BACKEND_URL;
+
+// Create a random conversation_id on script load
+const initialConversationId = uuidv4();
+localStorage.setItem("conversation_id", initialConversationId);
 
 // Align Params interface with react-chatbotify's expected structure
 interface Params {

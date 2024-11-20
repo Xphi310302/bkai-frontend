@@ -12,9 +12,9 @@ const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
 
-  // Default admin credentials
-  const adminEmail = "admin@example.com";
-  const adminPassword = "admin123";
+  // Read admin credentials from .env
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "admin@gmail.com";
+  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || "12345678";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
