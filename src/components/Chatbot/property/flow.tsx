@@ -1,7 +1,8 @@
 // src/components/Chatbot/property/flow.tsx
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { Flow as OriginalFlow, Block as OriginalBlock } from "react-chatbotify"; // Adjust import as necessary
+import { Flow as OriginalFlow, Block as OriginalBlock } from "react-chatbotify";
+
 const BACK_END_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Create a random conversation_id on script load
@@ -12,7 +13,7 @@ localStorage.setItem("conversation_id", initialConversationId);
 interface Params {
   conversation_id?: string;
   userInput: string;
-  injectMessage: (message: string) => Promise<string | null>; // Match expected return type
+  injectMessage: (message: string) => Promise<string | null>;
 }
 
 // Extend the OriginalBlock to include async message handling
@@ -25,16 +26,13 @@ interface ExtendedFlow extends OriginalFlow {
   [key: string]: ExtendedBlock;
 }
 
-const call_openai = async (params: Params) => {
-  if (!params.conversation_id) {
-    const storedId = localStorage.getItem("conversation_id");
-    if (storedId) {
-      params.conversation_id = storedId;
-    } else {
-      params.conversation_id = uuidv4();
-      localStorage.setItem("conversation_id", params.conversation_id);
-    }
-  }
+// Function to call OpenAI API
+const callOpenAI = async (params: Params) => {
+  // Use the initial conversation ID set at script load
+  params.conversation_id =
+    params.conversation_id ||
+    localStorage.getItem("conversation_id") ||
+    initialConversationId;
   console.log(params.conversation_id);
 
   try {
@@ -67,11 +65,10 @@ const flow: ExtendedFlow = {
   },
   loop: {
     message: async (params: Params): Promise<string | void> => {
-      await call_openai(params);
-      return; // Ensure it returns void
+      await callOpenAI(params);
     },
-    path: "loop", // Continue looping
+    path: "loop",
   },
 };
 
-export { flow, call_openai };
+export { flow, callOpenAI };
