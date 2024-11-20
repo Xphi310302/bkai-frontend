@@ -4,10 +4,11 @@ import { Flow as OriginalFlow, Block as OriginalBlock } from "react-chatbotify";
 
 const BACK_END_URL = import.meta.env.VITE_BACKEND_URL;
 
+// Align Params interface with react-chatbotify's expected structure
 interface Params {
   conversation_id?: string;
   userInput: string;
-  injectMessage: (message: string) => Promise<void>;
+  injectMessage: (message: string) => Promise<string | null>; // Match expected return type
 }
 
 // Extend the OriginalBlock to include async message handling
@@ -21,14 +22,13 @@ interface ExtendedFlow extends OriginalFlow {
 }
 
 const call_openai = async (params: Params) => {
-  // Check if conversation_id exists in local storage
   if (!params.conversation_id) {
     const storedId = localStorage.getItem("conversation_id");
     if (storedId) {
-      params.conversation_id = storedId; // Use stored ID if it exists
+      params.conversation_id = storedId;
     } else {
-      params.conversation_id = uuidv4(); // Generate a new one if no stored ID
-      localStorage.setItem("conversation_id", params.conversation_id); // Store the new ID
+      params.conversation_id = uuidv4();
+      localStorage.setItem("conversation_id", params.conversation_id);
     }
   }
   console.log(params.conversation_id);
