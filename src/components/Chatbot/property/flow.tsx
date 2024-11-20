@@ -44,12 +44,15 @@ const call_openai = async (params: Params) => {
 
 const flow = {
   start: {
-    message: "Welcome! Please enter your query to get started.",
+    message:
+      "Xin chào! Tôi là Civic Bot. Rất vui được hỗ trợ bạn với các thủ tục hành chính công. Bạn cần giúp đỡ gì ạ?",
     path: "loop",
   },
   loop: {
-    message: async (params: Params) => {
+    message: async (params: Params): Promise<string | void> => {
+      // Updated return type
       await call_openai(params);
+      return; // Ensure it returns void
     },
     path: "loop", // Continue looping
   },
