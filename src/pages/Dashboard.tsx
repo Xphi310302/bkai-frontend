@@ -115,38 +115,48 @@ function App() {
               </h2>
               <Zap className="w-5 h-5 text-green-500" />
             </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Target className="w-5 h-5 text-green-500 mr-2" />
-                    <span className="text-gray-600">Người dùng hoạt động</span>
-                  </div>
-                  <span className="text-xl font-semibold">247</span>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Target className="w-4 h-4 text-green-500 mr-2" />
+                  <span className="text-gray-600 text-base">
+                    Người dùng hoạt động
+                  </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <TrendingUp className="w-5 h-5 text-green-500 mr-2" />
-                    <span className="text-gray-600">Sử dụng CPU</span>
-                  </div>
-                  <span className="text-xl font-semibold">42%</span>
-                </div>
+                <span className="text-md font-semibold flex items-center">
+                  247
+                </span>
               </div>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <MessageSquare className="w-5 h-5 text-green-500 mr-2" />
-                    <span className="text-gray-600">Tin nhắn/phút</span>
-                  </div>
-                  <span className="text-xl font-semibold">89</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <TrendingUp className="w-4 h-4 text-green-500 mr-2" />
+                  <span className="text-gray-600 text-base">Sử dụng CPU</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Clock className="w-5 h-5 text-green-500 mr-2" />
-                    <span className="text-gray-600">Thời gian hoạt động</span>
-                  </div>
-                  <span className="text-xl font-semibold">99.9%</span>
+                <span className="text-md font-semibold flex items-center">
+                  42%
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <MessageSquare className="w-4 h-4 text-green-500 mr-2" />
+                  <span className="text-gray-600 text-base">
+                    Tin nhắn/phút
+                  </span>
                 </div>
+                <span className="text-md font-semibold flex items-center">
+                  89
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 text-green-500 mr-2" />
+                  <span className="text-gray-600 text-base">
+                    Thời gian hoạt động
+                  </span>
+                </div>
+                <span className="text-md font-semibold flex items-center">
+                  99.9%
+                </span>
               </div>
             </div>
           </div>
