@@ -70,7 +70,7 @@ const LoginForm: React.FC = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Nhập mật khẩu"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
@@ -84,13 +84,13 @@ const LoginForm: React.FC = () => {
                   type="checkbox"
                   className="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50"
                 />
-                <span className="text-sm text-gray-600">Remember me</span>
+                <span className="text-sm text-gray-600">Nhớ tài khoản</span>
               </label>
               <a
                 href="#"
                 className="text-sm text-green-600 hover:text-green-700 hover:underline"
               >
-                Forgot password?
+                Quên mật khẩu?
               </a>
             </div>
             <Button
@@ -101,19 +101,19 @@ const LoginForm: React.FC = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  Đang đăng nhập...
                 </>
               ) : (
-                "Sign in"
+                "Đăng nhập"
               )}
             </Button>
             <div className="text-center text-sm">
-              <span className="text-gray-600">Don't have an account?</span>{" "}
+              <span className="text-gray-600">Không có tài khoản?</span>{" "}
               <a
                 href="#"
                 className="text-green-600 hover:text-green-700 hover:underline"
               >
-                Sign up
+                Đăng kí
               </a>
             </div>
           </form>
