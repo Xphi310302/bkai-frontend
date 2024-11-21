@@ -167,7 +167,6 @@ type DocumentSelectorProps = {
 const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   documents,
   onImport,
-  onClose,
 }) => {
   const [isLoading, setLoading] = useState(false);
 
