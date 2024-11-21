@@ -9,7 +9,7 @@ import HomePage from "./pages/HomePage";
 import UploadPage from "./pages/UploadPage";
 import FAQsPage from "./pages/FAQsPage";
 import Navigation from "./components/Navigation";
-
+import Dashboard from "./pages/Dashboard";
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
 
@@ -26,6 +26,7 @@ const AppContent: React.FC = () => {
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/faqs" element={<FAQsPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </div>
   );
