@@ -1,5 +1,3 @@
-import React from "react";
-
 interface PerformanceMetricProps {
   label: string;
   value: string;
