@@ -1,49 +1,49 @@
 import axios from 'axios';
-import type { FAQ, Document } from '../../components/FAQsPage/types';
+import type { FAQ } from '../../components/FAQsPage/types';
+import { getFilesService } from "../files/fileReadService";
+import { UploadedFile } from '@/components/UploadPage/FileTable';
 
-const API_URL = 'https://api.example.com';
+const BASE_URL = import.meta.env.VITE_BACKEND_URL; 
 
-export async function getFAQsByDocument(documentId: string): Promise<FAQ[]> {
+export async function getFAQsByDocument(fileURL: string): Promise<FAQ[]> {
   try {
-    const response = await axios.get(`${API_URL}/documents/${documentId}/faqs`);
-    return response.data;
+    const response = await axios.post(`${BASE_URL}/api/v1/generate-qa`, { file_url: fileURL });
+    const { data } = response;
+
+    if (!data || !data.data) {
+      throw new Error("Invalid response structure");
+    }
+
+    return data.data.map((item: { Question: string; Answer: string; Filename: string }) => ({
+      question: item.Question,
+      answer: item.Answer,
+      file_id: item.Filename,
+      url: fileURL
+    }));
   } catch (error) {
-    // Mock data for demonstration
-    return [
-      {
-        id: documentId === 'doc1' ? 1 : 3,
-        question: documentId === 'doc1' ? "What is coaching?" : "How to get started?",
-        answer: documentId === 'doc1' ? "Coaching focuses on personal development." : "Contact our support team.",
-        file_id: documentId // Ensure file_id is set correctly
-      }
-    ];
+    console.error("Error fetching FAQs:", error);
+    throw new Error("Failed to fetch FAQs");
   }
 }
 
-export async function getDocuments(): Promise<Document[]> {
+export const getDocuments = async (): Promise<UploadedFile[]> => {
   try {
-    const response = await axios.get(`${API_URL}/documents`);
-    return response.data;
+    return await getFilesService();
   } catch (error) {
-    return [
-      { id: "doc1", name: "Tài liệu về tư vấn đất đai" },
-      { id: "doc2", name: "Tài liệu đăng ký kinh doanh" }
-    ];
+    console.error("Error fetching documents:", error);
+    throw new Error("Failed to fetch documents");
   }
-}
+};
 
 export async function updateFAQ(faq: FAQ): Promise<FAQ> {
   try {
-    const response = await axios.put(`${API_URL}/faqs/${faq.id}`, {
+    const response = await axios.put(`${BASE_URL}/faqs/${faq.id}`, {
       question: faq.question,
       answer: faq.answer,
       documentId: faq.file_id
     });
     return response.data;
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to update FAQ: ${error.message}`);
-    }
-    throw new Error('Failed to update FAQ');
+    throw new Error(`Failed to update FAQ: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { getFAQsByDocument, getDocuments } from "../services/faqs/api";
-import type { FAQ, Document } from "../components/FAQsPage/types";
+import type { FAQ } from "../components/FAQsPage/types";
 
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]); // Changed to any to avoid type issues
   const [isDocumentSelectorVisible, setDocumentSelectorVisible] =
     useState(false);
+  const [isLoading, setLoading] = useState(false);
+
+  const handleDocumentImport = async (documentURL: string) => {
+    setLoading(true);
+    try {
+      const documentFaqs = await getFAQsByDocument(documentURL);
+      setFaqs((prev) => new Map(prev).set(documentURL, documentFaqs));
+      setDocumentSelectorVisible(false);
+    } catch (error) {
+      console.error("Không thể nhập câu hỏi thường gặp:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -20,17 +34,8 @@ const FAQsPage: React.FC = () => {
     init();
   }, []);
 
-  const handleDocumentImport = async (documentId: string) => {
-    try {
-      const documentFaqs = await getFAQsByDocument(documentId);
-      setFaqs((prev) => new Map(prev).set(documentId, documentFaqs));
-    } catch (error) {
-      console.error("Không thể nhập câu hỏi thường gặp:", error);
-    }
-  };
-
   const toggleDocumentSelector = () => {
-    setDocumentSelectorVisible(!isDocumentSelectorVisible);
+    setDocumentSelectorVisible((prev) => !prev);
   };
 
   const handleSaveFAQ = (updatedFAQ: FAQ) => {
@@ -57,9 +62,17 @@ const FAQsPage: React.FC = () => {
           Nhập Câu Hỏi Thường Gặp
         </button>
       </div>
+      {isLoading && (
+        <div className="text-center py-4">
+          <p className="text-lg text-green-700">
+            Đang tải câu hỏi thường gặp...
+          </p>
+        </div>
+      )}
       <div className="px-8">
         {Array.from(faqs.keys()).map((docId) => {
           const documentFAQs = faqs.get(docId) || [];
+          const documentName = documents.find((d) => d.url === docId)?.name;
           return (
             <div
               className="bg-green-50 p-6 mb-10 rounded-lg shadow-lg border-2 border-green-300"
@@ -67,7 +80,7 @@ const FAQsPage: React.FC = () => {
               data-document-id={docId}
             >
               <h2 className="text-2xl font-semibold text-green-700 mb-4">
-                {documents.find((d) => d.id === docId)?.name}
+                {documentName}
               </h2>
               {documentFAQs.map((faq) => (
                 <FAQItem key={faq.id} faq={faq} onSave={handleSaveFAQ} />
@@ -80,7 +93,6 @@ const FAQsPage: React.FC = () => {
       {isDocumentSelectorVisible && (
         <DocumentSelector
           documents={documents}
-          importedFaqs={faqs}
           onImport={handleDocumentImport}
           onClose={toggleDocumentSelector}
         />
@@ -100,14 +112,14 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onSave }) => {
   const [editedAnswer, setEditedAnswer] = useState(faq.answer);
 
   const toggleAnswerVisibility = () => {
-    setAnswerVisible(!isAnswerVisible);
+    setAnswerVisible((prev) => !prev);
   };
 
   const toggleEditMode = () => {
     if (isEditing) {
       onSave({ ...faq, answer: editedAnswer });
     }
-    setEditing(!isEditing);
+    setEditing((prev) => !prev);
   };
 
   return (
@@ -147,49 +159,51 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onSave }) => {
 };
 
 type DocumentSelectorProps = {
-  documents: Document[];
-  importedFaqs: Map<string, FAQ[]>;
+  documents: any[]; // Changed to any to avoid type issues
   onImport: (documentId: string) => void;
   onClose: () => void;
 };
 
 const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   documents,
-  importedFaqs,
   onImport,
   onClose,
-}) => (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white w-1/3 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-green-800 mb-4 text-center">
-        Chọn Tài Liệu Để Nhập Câu Hỏi Thường Gặp
-      </h2>
-      <div className="space-y-4">
-        {documents.map((doc) => (
-          <div
-            key={doc.id}
-            className={`p-4 rounded-md border ${
-              importedFaqs.has(doc.id)
-                ? "bg-green-100 border-green-300"
-                : "border-green-200"
-            } flex justify-between items-center`}
-            onClick={() => onImport(doc.id)}
-          >
-            <span className="text-green-800 font-medium">{doc.name}</span>
-            {importedFaqs.has(doc.id) && (
-              <span className="text-green-600 font-bold">Đã Nhập</span>
-            )}
+}) => {
+  const [isLoading, setLoading] = useState(false);
+
+  const handleDocumentClick = async (url: string) => {
+    console.log("Selected document URL:", url); // Log the URL being selected
+    setLoading(true); // Set loading to true when a document is clicked
+    await onImport(url); // Call onImport to fetch FAQs using the document URL
+    setLoading(false); // Set loading to false after import is done
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white w-1/3 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-green-800 mb-4 text-center">
+          Chọn Tài Liệu Để Nhập Câu Hỏi Thường Gặp
+        </h2>
+        {isLoading ? (
+          <div className="text-center py-4">
+            <p className="text-lg text-green-700">Đang tải...</p>
           </div>
-        ))}
+        ) : (
+          <div className="space-y-4">
+            {documents.map((doc) => (
+              <div
+                key={doc.id}
+                className="p-4 rounded-md border border-green-200 flex justify-between items-center cursor-pointer"
+                onClick={() => handleDocumentClick(doc.url)} // Ensure this is the correct URL
+              >
+                <span className="text-green-800 font-medium">{doc.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      <button
-        className="mt-6 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
-        onClick={onClose}
-      >
-        Đóng
-      </button>
     </div>
-  </div>
-);
+  );
+};
 
 export default FAQsPage;
