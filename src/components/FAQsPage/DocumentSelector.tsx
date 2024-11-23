@@ -1,61 +1,62 @@
 import React, { useState } from "react";
-import type { Document } from "./types";
 
-interface DocumentSelectorProps {
+type Document = {
+  id: string;
+  name: string;
+  url: string;
+};
+
+type DocumentSelectorProps = {
   documents: Document[];
   onImport: (documentId: string) => void;
-  isVisible: boolean;
   onClose: () => void;
-}
+};
 
 const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   documents,
   onImport,
-  isVisible,
   onClose,
 }) => {
-  const [importedDocuments, setImportedDocuments] = useState<Set<string>>(
-    new Set()
-  );
+  const [isLoading, setLoading] = useState(false);
 
-  const addImportedDocument = (documentId: string) => {
-    setImportedDocuments((prev) => new Set(prev).add(documentId));
-  };
-
-  const renderDocumentList = () => {
-    return documents.map((doc) => (
-      <div className="document-item" key={doc.id}>
-        <button
-          className={`document-select-btn ${
-            importedDocuments.has(doc.id) ? "imported" : ""
-          }`}
-          data-document-id={doc.id}
-          disabled={importedDocuments.has(doc.id)}
-          onClick={() => {
-            onImport(doc.id);
-            addImportedDocument(doc.id);
-          }}
-        >
-          {doc.name}
-          {importedDocuments.has(doc.id) && (
-            <span className="imported-badge">Imported</span>
-          )}
-        </button>
-      </div>
-    ));
+  const handleDocumentClick = async (url: string) => {
+    console.log("Selected document URL:", url);
+    setLoading(true);
+    await onImport(url);
+    setLoading(false);
   };
 
   return (
-    <div
-      className={`import-modal ${isVisible ? "visible" : ""}`}
-      style={{ display: isVisible ? "flex" : "none" }}
-    >
-      <div className="modal-content">
-        <h2>Select Documents to Import FAQs</h2>
-        <div className="document-list">{renderDocumentList()}</div>
-        <button className="modal-close" onClick={onClose}>
-          Close
-        </button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white w-1/3 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-green-800 mb-4 text-center">
+          Chọn Tài Liệu Để Nhập Câu Hỏi Thường Gặp
+        </h2>
+        {isLoading ? (
+          <div className="text-center py-4">
+            <p className="text-lg text-green-700">Đang tải...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {documents.map(({ id, name, url }) => (
+              <div
+                key={id}
+                className="p-4 rounded-md border border-green-200 flex justify-between items-center cursor-pointer"
+                onClick={() => handleDocumentClick(url)}
+              >
+                <span className="text-green-800 font-medium">{name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="mt-4 text-center">
+          <button
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-800"
+            onClick={onClose}
+          >
+            Đóng
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getFAQsByDocument, getDocuments } from "../services/faqs/api";
 import type { FAQ } from "../components/FAQsPage/types";
+import FAQItem from "../components/FAQsPage/FAQItem"; // Importing FAQItem
+import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Importing DocumentSelector
 
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
-  const [documents, setDocuments] = useState<any[]>([]); // Changed to any to avoid type issues
+  const [documents, setDocuments] = useState<any[]>([]);
   const [isDocumentSelectorVisible, setDocumentSelectorVisible] =
     useState(false);
   const [isLoading, setLoading] = useState(false);
@@ -95,112 +97,9 @@ const FAQsPage: React.FC = () => {
           documents={documents}
           onImport={handleDocumentImport}
           onClose={toggleDocumentSelector}
+          isVisible={isDocumentSelectorVisible} // Added isVisible prop
         />
       )}
-    </div>
-  );
-};
-
-type FAQItemProps = {
-  faq: FAQ;
-  onSave: (updatedFAQ: FAQ) => void;
-};
-
-const FAQItem: React.FC<FAQItemProps> = ({ faq, onSave }) => {
-  const [isAnswerVisible, setAnswerVisible] = useState(true);
-  const [isEditing, setEditing] = useState(false);
-  const [editedAnswer, setEditedAnswer] = useState(faq.answer);
-
-  const toggleAnswerVisibility = () => {
-    setAnswerVisible((prev) => !prev);
-  };
-
-  const toggleEditMode = () => {
-    if (isEditing) {
-      onSave({ ...faq, answer: editedAnswer });
-    }
-    setEditing((prev) => !prev);
-  };
-
-  return (
-    <div className="bg-white p-4 mb-4 rounded-md shadow border border-green-400">
-      <div className="flex justify-between items-center">
-        <span className="font-medium text-green-800">{faq.question}</span>
-        <div className="flex items-center space-x-2">
-          <button
-            className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-            onClick={toggleAnswerVisibility}
-          >
-            {isAnswerVisible ? "-" : "+"}
-          </button>
-          <button
-            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-            onClick={toggleEditMode}
-          >
-            {isEditing ? "Lưu" : "Chỉnh sửa"}
-          </button>
-        </div>
-      </div>
-      {isAnswerVisible && (
-        <div className="mt-4">
-          {isEditing ? (
-            <textarea
-              className="w-full p-2 border border-green-300 rounded"
-              value={editedAnswer}
-              onChange={(e) => setEditedAnswer(e.target.value)}
-            />
-          ) : (
-            <p className="text-green-700">{faq.answer}</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-type DocumentSelectorProps = {
-  documents: any[]; // Changed to any to avoid type issues
-  onImport: (documentId: string) => void;
-  onClose: () => void;
-};
-
-const DocumentSelector: React.FC<DocumentSelectorProps> = ({
-  documents,
-  onImport,
-}) => {
-  const [isLoading, setLoading] = useState(false);
-
-  const handleDocumentClick = async (url: string) => {
-    console.log("Selected document URL:", url); // Log the URL being selected
-    setLoading(true); // Set loading to true when a document is clicked
-    await onImport(url); // Call onImport to fetch FAQs using the document URL
-    setLoading(false); // Set loading to false after import is done
-  };
-
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white w-1/3 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-green-800 mb-4 text-center">
-          Chọn Tài Liệu Để Nhập Câu Hỏi Thường Gặp
-        </h2>
-        {isLoading ? (
-          <div className="text-center py-4">
-            <p className="text-lg text-green-700">Đang tải...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {documents.map((doc) => (
-              <div
-                key={doc.id}
-                className="p-4 rounded-md border border-green-200 flex justify-between items-center cursor-pointer"
-                onClick={() => handleDocumentClick(doc.url)} // Ensure this is the correct URL
-              >
-                <span className="text-green-800 font-medium">{doc.name}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 };
