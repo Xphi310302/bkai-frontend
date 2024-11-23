@@ -97,7 +97,7 @@ const FAQsPage: React.FC = () => {
           documents={documents}
           onImport={handleDocumentImport}
           onClose={toggleDocumentSelector}
-          isVisible={isDocumentSelectorVisible} // Added isVisible prop
+          isVisible={isDocumentSelectorVisible} // This line is now valid
         />
       )}
     </div>

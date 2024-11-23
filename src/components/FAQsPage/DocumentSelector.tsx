@@ -1,16 +1,12 @@
 import React, { useState } from "react";
+import { Document } from "./types";
 
-type Document = {
-  id: string;
-  name: string;
-  url: string;
-};
-
-type DocumentSelectorProps = {
+interface DocumentSelectorProps {
   documents: Document[];
-  onImport: (documentId: string) => void;
+  onImport: (documentURL: string) => Promise<void>;
   onClose: () => void;
-};
+  isVisible: boolean; // Added isVisible prop
+}
 
 const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   documents,
