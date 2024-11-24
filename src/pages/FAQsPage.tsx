@@ -6,7 +6,7 @@ import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Impor
 
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
-  const [documents, setDocuments] = useState<FAQ[]>([]); // Changed from any[] to FAQ[]
+  const [documents, setDocuments] = useState<Document[]>([]); // Ensure this is Document[]
   const [isDocumentSelectorVisible, setDocumentSelectorVisible] =
     useState(false);
   const [isLoading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ const FAQsPage: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const docs = await getDocuments();
+        const docs: Document[] = await getDocuments(); // Ensure the fetched data is of type Document[]
         setDocuments(docs);
       } catch (error) {
         console.error("Không thể tải tài liệu:", error);

@@ -18,13 +18,13 @@ export async function getFAQsByDocument(fileName: string): Promise<FAQ[]> {
       throw new Error("Invalid response structure: Expected an array");
     }
 
-    return data.map((item: { faq_id: string; question: string; answer: string; file_id: string; verify: boolean }) => ({
+    return data.map((item: { faq_id: number; question: string; answer: string; file_id: string; verify: boolean }) => ({
       question: item.question,
       answer: item.answer,
       file_id: item.file_id,
       file_name: fileName,
       verify: item.verify,
-      faq_id: item.faq_id, // Include faq_id if needed
+      faq_id: item.faq_id, // Ensure faq_id is of type number
     }));
   } catch (error) {
     console.error("Error fetching FAQs:", error);
@@ -43,7 +43,7 @@ export const getDocuments = async (): Promise<UploadedFile[]> => {
 
 export async function updateFAQ(faq: FAQ): Promise<FAQ> {
   try {
-    const response = await axios.put(`${BASE_URL}/faqs/${faq.id}`, {
+    const response = await axios.put(`${BASE_URL}/faqs/${faq.faq_id}`, { // Use faq_id instead of id
       question: faq.question,
       answer: faq.answer,
       documentId: faq.file_id
