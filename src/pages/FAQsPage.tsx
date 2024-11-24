@@ -94,12 +94,22 @@ const FAQsPage: React.FC = () => {
               key={fileName}
               data-document-id={fileName}
             >
-              <h2 className="text-2xl font-semibold text-green-700 mb-4">
-                {fileName}
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                {" "}
+                {/* Added flex container */}
+                <h2 className="text-2xl font-semibold text-green-700">
+                  {fileName}
+                </h2>
+                <button
+                  className="mt-0 bg-green-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-green-700 hover:scale-105" // Added hover effects
+                  onClick={() => handleCheckAll(fileName)} // Call handleCheckAll
+                >
+                  Chọn tất cả
+                </button>
+              </div>
               {documentFAQs.map((faq) => (
                 <div
-                  className="flex justify-between items-center mb-4 p-2 bg-white rounded shadow border border-green-400 w-full" // Added w-full to take full width
+                  className="flex justify-between items-center mb-4 p-2 bg-white rounded shadow border border-green-400 w-full"
                   key={faq.faq_id}
                 >
                   <FAQItem
@@ -107,16 +117,9 @@ const FAQsPage: React.FC = () => {
                     onVerifyChange={(faqId) =>
                       handleVerifyChange(fileName, faqId)
                     }
-                  />{" "}
-                  {/* Pass onVerifyChange */}
+                  />
                 </div>
               ))}
-              <button
-                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
-                onClick={() => handleCheckAll(fileName)} // Call handleCheckAll
-              >
-                Check All
-              </button>
             </div>
           );
         })}

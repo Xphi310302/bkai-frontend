@@ -55,7 +55,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onVerifyChange }) => {
           {isAnswerVisible ? "-" : "+"}
         </button>
         <button
-          className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+          className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600 whitespace-nowrap"
           onClick={toggleEditMode}
         >
           {isEditing ? "Lưu" : "Chỉnh sửa"}
@@ -64,9 +64,9 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onVerifyChange }) => {
           type="checkbox"
           checked={faq.verify}
           onChange={() => onVerifyChange(faq.faq_id)} // Call onVerifyChange
-          className="ml-2"
+          className="ml-2 w-4 h-4" // Increased size
         />
-        <label className="text-green-800 ml-1">Verified</label>
+        <label className="text-green-800 ml-1"></label>
       </div>
     </div>
   );
