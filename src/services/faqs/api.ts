@@ -41,15 +41,15 @@ export const getDocuments = async (): Promise<UploadedFile[]> => {
   }
 };
 
-export async function updateFAQ(faq: FAQ): Promise<FAQ> {
-  try {
-    const response = await axios.put(`${BASE_URL}/faqs/${faq.id}`, {
-      question: faq.question,
-      answer: faq.answer,
-      documentId: faq.file_id
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error(`Failed to update FAQ: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
+// export async function updateFAQ(faq: FAQ): Promise<FAQ> {
+//   try {
+//     const response = await axios.put(`${BASE_URL}/faqs/${faq.id}`, {
+//       question: faq.question,
+//       answer: faq.answer,
+//       documentId: faq.file_id
+//     });
+//     return response.data;
+//   } catch (error) {
+//     throw new Error(`Failed to update FAQ: ${error instanceof Error ? error.message : 'Unknown error'}`);
+//   }
+// }
