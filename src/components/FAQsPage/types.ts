@@ -1,5 +1,5 @@
 export interface FAQ {
-  faq_id: number;
+  faq_id: string;
   question: string;
   answer: string;
   file_id: string;

@@ -7,7 +7,7 @@ import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Impor
 
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
-  const [documents, setDocuments] = useState<Document[]>([]); // Ensure this is Document[]
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [isDocumentSelectorVisible, setDocumentSelectorVisible] =
     useState(false);
   const [isLoading, setLoading] = useState(false);
@@ -15,9 +15,9 @@ const FAQsPage: React.FC = () => {
   const handleDocumentImport = async (fileName: string) => {
     setLoading(true);
     try {
-      const documentFaqs = await getFAQsByDocument(fileName); // Fetch FAQs using the filename
-      setFaqs((prev) => new Map(prev).set(fileName, documentFaqs)); // Store FAQs in state
-      setDocumentSelectorVisible(false); // Close the DocumentSelector
+      const documentFaqs = await getFAQsByDocument(fileName);
+      setFaqs((prev) => new Map(prev).set(fileName, documentFaqs));
+      setDocumentSelectorVisible(false);
     } catch (error) {
       console.error("Không thể nhập câu hỏi thường gặp:", error);
     } finally {
@@ -25,19 +25,35 @@ const FAQsPage: React.FC = () => {
     }
   };
 
+  const handleCheckAll = (fileName: string) => {
+    setFaqs((prev) => {
+      const updatedFAQs = (prev.get(fileName) || []).map((faq) => ({
+        ...faq,
+        verify: true, // Set verify to true for all
+      }));
+      return new Map(prev).set(fileName, updatedFAQs);
+    });
+  };
+
+  const handleVerifyChange = (fileName: string, faqId: string) => {
+    setFaqs((prev) => {
+      const updatedFAQs = (prev.get(fileName) || []).map((faq) =>
+        faq.faq_id === faqId ? { ...faq, verify: !faq.verify } : faq
+      );
+      return new Map(prev).set(fileName, updatedFAQs);
+    });
+  };
+
   useEffect(() => {
     const init = async () => {
       try {
-        const uploadedFiles: UploadedFile[] = await getDocuments(); // Fetch UploadedFile[]
-
-        // Transform UploadedFile[] to Document[]
+        const uploadedFiles: UploadedFile[] = await getDocuments();
         const docs: Document[] = uploadedFiles.map((file) => ({
-          id: file.fileId, // Ensure this matches the UploadedFile structure
+          id: file.fileId,
           name: file.name,
           url: file.url,
         }));
-
-        setDocuments(docs); // Set transformed documents as Document[]
+        setDocuments(docs);
       } catch (error) {
         console.error("Không thể tải tài liệu:", error);
       }
@@ -47,19 +63,6 @@ const FAQsPage: React.FC = () => {
 
   const toggleDocumentSelector = () => {
     setDocumentSelectorVisible((prev) => !prev);
-  };
-
-  const handleSaveFAQ = (updatedFAQ: FAQ) => {
-    setFaqs((prev) => {
-      const updatedFAQs = prev.get(updatedFAQ.file_id) || [];
-      const index = updatedFAQs.findIndex(
-        (faq) => faq.faq_id === updatedFAQ.faq_id
-      );
-      if (index !== -1) {
-        updatedFAQs[index] = updatedFAQ;
-      }
-      return new Map(prev).set(updatedFAQ.file_id, updatedFAQs);
-    });
   };
 
   return (
@@ -95,8 +98,25 @@ const FAQsPage: React.FC = () => {
                 {fileName}
               </h2>
               {documentFAQs.map((faq) => (
-                <FAQItem key={faq.faq_id} faq={faq} onSave={handleSaveFAQ} />
+                <div
+                  className="flex justify-between items-center mb-4 p-2 bg-white rounded shadow border border-green-400 w-full" // Added w-full to take full width
+                  key={faq.faq_id}
+                >
+                  <FAQItem
+                    faq={faq}
+                    onVerifyChange={(faqId) =>
+                      handleVerifyChange(fileName, faqId)
+                    }
+                  />{" "}
+                  {/* Pass onVerifyChange */}
+                </div>
               ))}
+              <button
+                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+                onClick={() => handleCheckAll(fileName)} // Call handleCheckAll
+              >
+                Check All
+              </button>
             </div>
           );
         })}
@@ -104,10 +124,10 @@ const FAQsPage: React.FC = () => {
 
       {isDocumentSelectorVisible && (
         <DocumentSelector
-          documents={documents} // Pass Document[] to DocumentSelector
+          documents={documents}
           onImport={handleDocumentImport}
           onClose={toggleDocumentSelector}
-          isVisible={isDocumentSelectorVisible} // This line is now valid
+          isVisible={isDocumentSelectorVisible}
         />
       )}
     </div>
