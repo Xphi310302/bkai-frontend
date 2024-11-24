@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getFAQsByDocument, getDocuments } from "../services/faqs/api";
-import type { FAQ } from "../components/FAQsPage/types";
+import type { FAQ, Document } from "../components/FAQsPage/types"; // Ensure Document is imported correctly
 import FAQItem from "../components/FAQsPage/FAQItem"; // Importing FAQItem
 import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Importing DocumentSelector
 
@@ -27,8 +27,17 @@ const FAQsPage: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const docs: Document[] = await getDocuments(); // Ensure the fetched data is of type Document[]
-        setDocuments(docs);
+        const uploadedFiles: UploadedFile[] = await getDocuments(); // Fetch UploadedFile[]
+
+        // Transform UploadedFile[] to Document[]
+        const docs: Document[] = uploadedFiles.map((file) => ({
+          id: file.id, // Ensure these properties exist in UploadedFile
+          name: file.file_name, // Adjust according to your UploadedFile structure
+          url: file.url, // Adjust according to your UploadedFile structure
+          // Add any other necessary properties to match Document type
+        }));
+
+        setDocuments(docs); // Set transformed documents
       } catch (error) {
         console.error("Không thể tải tài liệu:", error);
       }
@@ -76,7 +85,6 @@ const FAQsPage: React.FC = () => {
       <div className="px-8">
         {Array.from(faqs.keys()).map((fileName) => {
           const documentFAQs = faqs.get(fileName) || [];
-          // const fileName = fileName; // Assuming docId is the filename
           return (
             <div
               className="bg-green-50 p-6 mb-10 rounded-lg shadow-lg border-2 border-green-300"
