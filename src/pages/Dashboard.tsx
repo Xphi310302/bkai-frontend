@@ -33,31 +33,31 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Tổng người dùng"
-            value="1,234"
+            value="15"
             unit="người dùng"
             icon={Users}
-            trend={{ value: 12, isPositive: true }}
+            trend={{ value: 2, isPositive: true }}
           />
           <StatCard
             title="Phiên hoạt động"
-            value="423"
+            value="5"
             unit="phiên"
             icon={Activity}
-            trend={{ value: 8, isPositive: true }}
+            trend={{ value: 1, isPositive: true }}
           />
           <StatCard
             title="Tin nhắn"
-            value="8,549"
+            value="20"
             unit="tổng"
             icon={MessageSquare}
-            trend={{ value: 5, isPositive: false }}
+            trend={{ value: 3, isPositive: false }}
           />
           <StatCard
             title="Thời gian phản hồi"
-            value="2.3"
+            value="1.5"
             unit="giây"
             icon={Clock}
-            trend={{ value: 15, isPositive: true }}
+            trend={{ value: 5, isPositive: true }}
           />
         </div>
 
@@ -71,37 +71,37 @@ function App() {
             <div className="grid grid-cols-3 gap-4 mb-6">
               <PerformanceMetric
                 label="Tỷ lệ thành công"
-                value="95%"
+                value="90%"
                 color="text-green-600"
-                subtext="+2.5% tuần này"
+                subtext="+1.5% tuần này"
               />
               <PerformanceMetric
                 label="Thời gian phản hồi trung bình"
-                value="1.8s"
+                value="1.2s"
                 color="text-green-500"
-                subtext="Mục tiêu: 2.0s"
+                subtext="Mục tiêu: 1.5s"
               />
               <PerformanceMetric
                 label="Mức độ hài lòng"
-                value="4.8/5"
+                value="4.5/5"
                 color="text-green-600"
-                subtext="Dựa trên 1.2k đánh giá"
+                subtext="Dựa trên 50 đánh giá"
               />
             </div>
             <div className="space-y-4">
               <ProgressBar
-                value={85}
-                label="Sự tham gia của người dùng"
-                color="bg-green-500"
-              />
-              <ProgressBar
-                value={92}
-                label="Hoàn thành nhiệm vụ"
+                value={80}
+                label="Tỷ lệ tương tác của người dùng với chatbot"
                 color="bg-green-600"
               />
               <ProgressBar
-                value={78}
-                label="Sử dụng tài nguyên"
+                value={75}
+                label="Tỷ lệ người dùng hài lòng với chatbot"
+                color="bg-green-500"
+              />
+              <ProgressBar
+                value={45}
+                label="Tỷ lệ câu hỏi được giải đáp nhanh chóng"
                 color="bg-green-400"
               />
             </div>
@@ -124,7 +124,7 @@ function App() {
                   </span>
                 </div>
                 <span className="text-md font-semibold flex items-center">
-                  247
+                  10
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -133,18 +133,16 @@ function App() {
                   <span className="text-gray-600 text-base">Sử dụng CPU</span>
                 </div>
                 <span className="text-md font-semibold flex items-center">
-                  42%
+                  30%
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <MessageSquare className="w-4 h-4 text-green-500 mr-2" />
-                  <span className="text-gray-600 text-base">
-                    Tin nhắn/phút
-                  </span>
+                  <span className="text-gray-600 text-base">Tin nhắn/phút</span>
                 </div>
                 <span className="text-md font-semibold flex items-center">
-                  89
+                  5
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -155,17 +153,17 @@ function App() {
                   </span>
                 </div>
                 <span className="text-md font-semibold flex items-center">
-                  99.9%
+                  99.5%
                 </span>
               </div>
             </div>
           </div>
 
-          {/*  Thống kê về phản hổi người dùng */}
+          {/*  Thống kê về phản hồi người dùng */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
-                Thống kê về phản hổi người dùng
+                Thống kê về phản hồi người dùng
               </h2>
               <BarChart className="w-5 h-5 text-green-500" />
             </div>
@@ -175,21 +173,21 @@ function App() {
                   <ThumbsUp className="w-5 h-5 text-green-600 mr-2" />
                   <span className="text-gray-600">Phản hồi tích cực</span>
                 </div>
-                <span className="font-semibold">82%</span>
+                <span className="font-semibold">70%</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <ThumbsDown className="w-5 h-5 text-red-500 mr-2" />
                   <span className="text-gray-600">Phản hồi tiêu cực</span>
                 </div>
-                <span className="font-semibold">18%</span>
+                <span className="font-semibold">30%</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <FileQuestion className="w-5 h-5 text-green-500 mr-2" />
                   <span className="text-gray-600">Câu hỏi đang chờ</span>
                 </div>
-                <span className="font-semibold">45</span>
+                <span className="font-semibold">5</span>
               </div>
             </div>
           </div>
@@ -197,9 +195,6 @@ function App() {
 
         {/* Phần biểu đồ */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Biểu đồ hoạt động người dùng
-          </h2>
           <ActivityChart />
         </div>
       </div>

@@ -5,20 +5,26 @@ import { UploadedFile } from '@/components/UploadPage/FileTable';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL; 
 
-export async function getFAQsByDocument(fileURL: string): Promise<FAQ[]> {
+export async function getFAQsByDocument(fileName: string): Promise<FAQ[]> {
   try {
-    const response = await axios.post(`${BASE_URL}/api/v1/generate-qa`, { file_url: fileURL });
-    const { data } = response;
+    const response = await axios.get(`${BASE_URL}/api/v1/get-faqs-by-file-name/${fileName}`);
+    const data = response.data; // Directly use response.data
 
-    if (!data || !data.data) {
-      throw new Error("Invalid response structure");
+    // Log the entire response for debugging
+    console.log("API Response:", data);
+
+    // Check if the response is an array
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid response structure: Expected an array");
     }
 
-    return data.data.map((item: { Question: string; Answer: string; Filename: string }) => ({
-      question: item.Question,
-      answer: item.Answer,
-      file_id: item.Filename,
-      url: fileURL
+    return data.map((item: { faq_id: string; question: string; answer: string; file_id: string; verify: boolean }) => ({
+      question: item.question,
+      answer: item.answer,
+      file_id: item.file_id,
+      file_name: fileName,
+      verify: item.verify,
+      faq_id: item.faq_id, // Include faq_id if needed
     }));
   } catch (error) {
     console.error("Error fetching FAQs:", error);

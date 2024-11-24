@@ -1,8 +1,9 @@
 export interface FAQ {
-  id: number;
+  faq_id: number;
   question: string;
   answer: string;
   file_id: string;
+  verify: boolean;
 }
 
 export interface Document {

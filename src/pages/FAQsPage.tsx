@@ -6,17 +6,17 @@ import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Impor
 
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
-  const [documents, setDocuments] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<FAQ[]>([]); // Changed from any[] to FAQ[]
   const [isDocumentSelectorVisible, setDocumentSelectorVisible] =
     useState(false);
   const [isLoading, setLoading] = useState(false);
 
-  const handleDocumentImport = async (documentURL: string) => {
+  const handleDocumentImport = async (fileName: string) => {
     setLoading(true);
     try {
-      const documentFaqs = await getFAQsByDocument(documentURL);
-      setFaqs((prev) => new Map(prev).set(documentURL, documentFaqs));
-      setDocumentSelectorVisible(false);
+      const documentFaqs = await getFAQsByDocument(fileName); // Fetch FAQs using the filename
+      setFaqs((prev) => new Map(prev).set(fileName, documentFaqs)); // Store FAQs in state
+      setDocumentSelectorVisible(false); // Close the DocumentSelector
     } catch (error) {
       console.error("Không thể nhập câu hỏi thường gặp:", error);
     } finally {
@@ -43,7 +43,9 @@ const FAQsPage: React.FC = () => {
   const handleSaveFAQ = (updatedFAQ: FAQ) => {
     setFaqs((prev) => {
       const updatedFAQs = prev.get(updatedFAQ.file_id) || [];
-      const index = updatedFAQs.findIndex((faq) => faq.id === updatedFAQ.id);
+      const index = updatedFAQs.findIndex(
+        (faq) => faq.faq_id === updatedFAQ.faq_id
+      );
       if (index !== -1) {
         updatedFAQs[index] = updatedFAQ;
       }
@@ -72,20 +74,20 @@ const FAQsPage: React.FC = () => {
         </div>
       )}
       <div className="px-8">
-        {Array.from(faqs.keys()).map((docId) => {
-          const documentFAQs = faqs.get(docId) || [];
-          const documentName = documents.find((d) => d.url === docId)?.name;
+        {Array.from(faqs.keys()).map((fileName) => {
+          const documentFAQs = faqs.get(fileName) || [];
+          // const fileName = fileName; // Assuming docId is the filename
           return (
             <div
               className="bg-green-50 p-6 mb-10 rounded-lg shadow-lg border-2 border-green-300"
-              key={docId}
-              data-document-id={docId}
+              key={fileName}
+              data-document-id={fileName}
             >
               <h2 className="text-2xl font-semibold text-green-700 mb-4">
-                {documentName}
+                {fileName}
               </h2>
               {documentFAQs.map((faq) => (
-                <FAQItem key={faq.id} faq={faq} onSave={handleSaveFAQ} />
+                <FAQItem key={faq.faq_id} faq={faq} onSave={handleSaveFAQ} />
               ))}
             </div>
           );
