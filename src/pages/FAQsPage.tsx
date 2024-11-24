@@ -3,6 +3,7 @@ import { getFAQsByDocument, getDocuments } from "../services/faqs/api";
 import type { FAQ, Document } from "../components/FAQsPage/types"; // Ensure Document is imported correctly
 import FAQItem from "../components/FAQsPage/FAQItem"; // Importing FAQItem
 import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Importing DocumentSelector
+import { UploadedFile } from "../components/UploadPage/FileTable"; // Import UploadedFile
 
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
