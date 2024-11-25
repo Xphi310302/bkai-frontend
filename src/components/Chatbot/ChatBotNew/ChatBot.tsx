@@ -5,7 +5,7 @@ import ChatMessage from "./ChatMessage.tsx";
 import ChatInput from "./ChatInput.tsx";
 
 export default function ChatBot() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // Changed from true to false
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
