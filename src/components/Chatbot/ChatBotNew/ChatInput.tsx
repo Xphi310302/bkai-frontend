@@ -27,7 +27,7 @@ export default function ChatInput({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
+          placeholder="Nhập câu hỏi của bạn..."
           className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
           disabled={isLoading}
         />
