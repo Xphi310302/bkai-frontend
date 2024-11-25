@@ -25,10 +25,8 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onVerifyChange }) => {
 
   return (
     <div className="flex justify-between items-start w-full p-4 ">
-      {" "}
       {/* Container for FAQ item */}
       <div className="flex flex-col w-full">
-        {" "}
         {/* Wrapper for question and answer */}
         <span className="font-medium text-green-800">{faq.question}</span>
         {isAnswerVisible && (
@@ -40,13 +38,12 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onVerifyChange }) => {
                 onChange={(e) => setEditedAnswer(e.target.value)}
               />
             ) : (
-              <p className="text-green-700">{faq.answer}</p>
+              <p className="text-green-700 whitespace-pre-wrap">{faq.answer}</p> // Preserve newlines in the answer
             )}
           </div>
         )}
       </div>
       <div className="flex items-center space-x-2 ml-4">
-        {" "}
         {/* Align buttons to the right */}
         <button
           className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"

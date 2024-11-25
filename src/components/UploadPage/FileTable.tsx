@@ -1,5 +1,6 @@
 import React from "react";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDownload, faTrash } from "@fortawesome/free-solid-svg-icons";
 export interface UploadedFile {
   fileId: string;
   name: string;
@@ -44,20 +45,22 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
                 <td className="py-2 px-4 border-b">{file.name}</td>
                 <td className="py-2 px-4 border-b">{file.dateUploaded}</td>
                 <td className="py-2 px-4 border-b">
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-8"> {/* Further increased spacing between icons */}
                     <a
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-green-600 underline"
+                      className="text-green-600"
                     >
-                      Tải xuống
+                      {/* Use Font Awesome download icon */}
+                      <FontAwesomeIcon icon={faDownload} aria-hidden="true" />
                     </a>
                     <button
                       onClick={() => handleDelete(file.fileId)} // Call handleDelete with fileId
-                      className="text-red-500 underline"
+                      className="text-red-500"
                     >
-                      Xóa
+                      {/* Use Font Awesome trash icon */}
+                      <FontAwesomeIcon icon={faTrash} aria-hidden="true" />
                     </button>
                   </div>
                 </td>
