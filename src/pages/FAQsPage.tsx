@@ -53,9 +53,21 @@ const FAQsPage: React.FC = () => {
     setPopupVisible(true); // Show the popup notification
   };
 
+  //dummy update function
   const updateFAQsToDatabase = async (fileName: string) => {
     // Simulate an API call to update FAQs in the database
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log(`Updating FAQs for document: ${fileName}`); // Log the action for clarity
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // Simulate a successful update
+        const success = true; // Change this to false to simulate an error
+        if (success) {
+          resolve("Update successful");
+        } else {
+          reject(new Error("Update failed")); // Simulate an error
+        }
+      }, 1000);
+    });
   };
 
   const closePopup = () => {
