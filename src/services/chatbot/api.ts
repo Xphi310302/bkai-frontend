@@ -1,7 +1,9 @@
+// src/services/chatbot/api.ts
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid'; 
+const BASE_URL = import.meta.env.VITE_BACKEND_URL; // Replace with your actual backend URL
+console.log(BASE_URL);
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL // Replace with your actual backend URL
-console.log(BASE_URL)
 export interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -11,15 +13,12 @@ interface ChatResponse {
   response: string;
   conversation_id: string;
 }
+
 export async function sendMessage(message: string): Promise<string> {
   try {
-    // Check if conversation ID exists, if not, initialize it
-    let conversationId = localStorage.getItem('conversation_id');
-    if (!conversationId) {
-      // Initialize a new conversation ID (you can generate a unique ID here)
-      conversationId = 'new_conversation_id'; // Replace with actual ID generation logic
-      localStorage.setItem('conversation_id', conversationId);
-    }
+    // Initialize a new conversation ID with UUID each time the page is reloaded
+    const conversationId = uuidv4(); // Generate a new UUID
+    localStorage.setItem('conversation_id', conversationId);
 
     console.log('Sending message:', message, 'with conversation ID:', conversationId);
     const response = await axios.post<ChatResponse>(
