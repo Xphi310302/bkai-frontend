@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import { Send } from "lucide-react";
 
 interface ChatInputProps {
@@ -6,10 +6,10 @@ interface ChatInputProps {
   isLoading: boolean;
 }
 
-export default function ChatInput({
+const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(({
   onSendMessage,
   isLoading,
-}: ChatInputProps) {
+}, ref) => {
   const [input, setInput] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -24,6 +24,8 @@ export default function ChatInput({
     <form onSubmit={handleSubmit} className="p-4 border-t">
       <div className="flex space-x-2">
         <input
+          ref={ref}
+          autoFocus
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -41,4 +43,6 @@ export default function ChatInput({
       </div>
     </form>
   );
-}
+});
+
+export default ChatInput;

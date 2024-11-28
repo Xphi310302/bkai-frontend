@@ -15,6 +15,7 @@ export default function ChatBot() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -23,6 +24,12 @@ export default function ChatBot() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      inputRef.current?.focus();
+    }
+  }, [isLoading]);
 
   const handleSendMessage = async (message: string) => {
     if (!message.trim()) return;
@@ -86,7 +93,11 @@ export default function ChatBot() {
           </div>
 
           {/* Input */}
-          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          <ChatInput 
+            ref={inputRef}
+            onSendMessage={handleSendMessage} 
+            isLoading={isLoading} 
+          />
         </div>
       )}
 
