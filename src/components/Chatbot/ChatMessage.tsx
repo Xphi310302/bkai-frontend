@@ -1,4 +1,3 @@
-
 import { Message } from "../../services/chatbot/api";
 
 interface ChatMessageProps {
@@ -11,7 +10,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     const parts = content.split(/(\[.*?\]\(.*?\))/);
     
     return (
-      <div className="flex flex-wrap items-start w-full text-left">
+      <div className="flex flex-col w-full text-left whitespace-pre-wrap">
         {parts.map((part, index) => {
           // Check if this part is a markdown link
           const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
@@ -32,12 +31,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           }
           
           // Regular text part - preserve whitespace and line breaks
-          const lines = part.split('\n').map(line => line.trim().replace(/\s+/g, ' '));
-          return (
-            <span key={index} className="inline">
-              {lines.join(' ')}
-            </span>
-          );
+          return <span key={index}>{part}</span>;
         })}
       </div>
     );
@@ -50,10 +44,10 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       }`}
     >
       <div
-        className={`max-w-[80%] p-3 rounded-lg ${
+        className={`max-w-[80%] rounded-lg p-3 ${
           message.role === "user"
             ? "bg-green-600 text-white"
-            : "bg-cyan-100 text-gray-800"
+            : "bg-teal-100 text-black"
         }`}
       >
         {renderContent(message.content)}
