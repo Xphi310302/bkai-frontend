@@ -21,7 +21,7 @@ const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t">
+    <form onSubmit={handleSubmit} className="relative">
       <div className="flex space-x-2">
         <input
           ref={ref}
@@ -30,12 +30,14 @@ const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Nhập câu hỏi của bạn..."
-          className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+          className={`w-full p-3 rounded-lg border focus:outline-none focus:border-green-500 text-[15px] ${
+            isLoading ? "bg-gray-100" : "bg-white"
+          }`}
           disabled={isLoading}
         />
         <button
           type="submit"
-          className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+          className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex-shrink-0"
           disabled={isLoading}
         >
           <Send size={20} />

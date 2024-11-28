@@ -10,13 +10,13 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     const parts = content.split(/(\[.*?\]\(.*?\))/);
     
     return (
-      <div className="flex flex-col w-full text-left whitespace-pre-wrap">
+      <div className="flex flex-col w-full text-left whitespace-pre-wrap font-inter text-[15px] leading-relaxed">
         {parts.map((part, index) => {
           // Check if this part is a markdown link
           const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
           
           if (linkMatch) {
-            const [_, text, url] = linkMatch;
+            const [, text, url] = linkMatch;
             return (
               <a
                 key={index}
@@ -44,7 +44,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       }`}
     >
       <div
-        className={`max-w-[90%] rounded-lg p-3 ${
+        className={`max-w-[90%] rounded-lg p-3 font-inter ${
           message.role === "user"
             ? "bg-green-600 text-white"
             : "bg-teal-100 text-black"

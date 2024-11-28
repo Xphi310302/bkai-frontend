@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Bell, X } from "lucide-react";
+import { Bot, X } from "lucide-react";
 import { Message, sendMessage } from "../../services/chatbot/api.ts";
 import ChatMessage from "./ChatMessage.tsx";
 import ChatInput from "./ChatInput.tsx";
@@ -59,29 +59,31 @@ export default function ChatBot() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div
+      className={`fixed bottom-4 right-4 z-50 ${
+        isOpen ? "w-[400px]" : "w-auto"
+      }`}
+    >
       {isOpen && (
-        <div className="bg-white rounded-lg shadow-xl w-[380px] h-[600px] flex flex-col">
+        <div className="bg-white rounded-lg shadow-xl h-[600px] flex flex-col overflow-hidden">
           {/* Header */}
           <div className="bg-green-600 p-4 rounded-t-lg flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Bot className="text-white" size={24} />
-              <span className="text-white font-semibold">Civic Bot</span>
+            <div className="flex items-center space-x-2 text-white font-inter">
+              <Bot size={24} />
+              <span className="font-semibold">Civic Bot</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <Bell className="text-white cursor-pointer" size={20} />
-              <X
-                className="text-white cursor-pointer"
-                size={20}
-                onClick={() => setIsOpen(false)}
-              />
-            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:text-gray-200 transition-colors"
+            >
+              <X size={24} />
+            </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message, index) => (
-              <ChatMessage key={index} message={message} />
+          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {messages.map((msg, index) => (
+              <ChatMessage key={index} message={msg} />
             ))}
             {isLoading && (
               <div className="flex items-center space-x-2">
@@ -93,18 +95,20 @@ export default function ChatBot() {
           </div>
 
           {/* Input */}
-          <ChatInput 
-            ref={inputRef}
-            onSendMessage={handleSendMessage} 
-            isLoading={isLoading} 
-          />
+          <div className="p-4 border-t">
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+              ref={inputRef}
+            />
+          </div>
         </div>
       )}
 
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+          className="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition-colors shadow-lg"
         >
           <Bot size={24} />
         </button>
