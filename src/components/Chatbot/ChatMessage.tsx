@@ -44,7 +44,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       }`}
     >
       <div
-        className={`max-w-[80%] rounded-lg p-3 ${
+        className={`max-w-[90%] rounded-lg p-3 ${
           message.role === "user"
             ? "bg-green-600 text-white"
             : "bg-teal-100 text-black"
