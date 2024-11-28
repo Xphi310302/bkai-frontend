@@ -3,9 +3,9 @@
 }
 
 .search-content {
-  background-image: url("/images/slide-tpthuduc.jpg"); /* Add background image */
-  display: flex;
-  min-height: 500px;
+  background-image: url('/public/images/slide-tpthuduc.jpg'); /* Add background image */
+  display: flex; 
+  min-height: 500px; 
   width: 100%; /* Maximize the width of search-content */
   background-size: cover; /* Ensure the image covers the entire area */
   background-position: center; /* Center the background image */

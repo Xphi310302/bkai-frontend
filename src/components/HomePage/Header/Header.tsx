@@ -6,8 +6,7 @@ const Header: React.FC = () => {
     <header className="header">
       <div className="header-top">
         <div className="logo">
-          <img src="/images/layout_set_logo.png" alt="UBND Thành Phố Thủ Đức" />{" "}
-          {/* Add your logo image */}
+          <img src="public/images/layout_set_logo.png" alt="UBND Thành Phố Thủ Đức" /> {/* Add your logo image */}
           {/* <span>UBND THÀNH PHỐ THỦ ĐỨC</span> */}
         </div>
         <div className="top-right-content">
@@ -25,9 +24,9 @@ const Header: React.FC = () => {
       <div className="header-main">
         <nav>
           <ul className="menu">
-            <li className="homepage">
-              <button>
-                <img src="/images/icHome-hv.png" alt="Home" />
+            <li className='homepage'>
+              <button >
+                <img src="public/images/icHome-hv.png" alt="Home"/>
               </button>
             </li>
             <li>
