@@ -3,33 +3,47 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_BACKEND_URL; // Get the base URL from .env
 import { UploadedFile } from '../../components/UploadPage/FileTable'; // Import UploadedFile interface
 
-export interface MongoFiles {
-  _id: string; // Added to match the response structure
-  file_id: string; // Changed to match the response structure
-  file_ext: string; // fileExtension[1:]
-  filename: string; // Changed to match the response structure
-  url: string; // file.filename
-  uploaded_at: string; // Changed to match the response structure
+interface MongoFiles {
+  _id: string;
+  file_id: string;
+  file_ext: string;
+  filename: string;
+  url: string;
+  uploaded_at: string;
 }
+
+// Configure axios defaults for ngrok
+const axiosInstance = axios.create({
+  headers: {
+    'ngrok-skip-browser-warning': 'true'
+  }
+});
 
 export const getFilesService = async (): Promise<UploadedFile[]> => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/v1/files`);
+    const response = await axiosInstance.get(`${BASE_URL}/api/v1/files`);
     
+    console.log('API Response:', response.data); // Debug log
+
     // Test the API response
-    if (!response.data || !Array.isArray(response.data)) {
-      console.error('Unexpected API response:', response.data);
+    if (!response.data) {
+      console.error('No data in API response');
       throw new Error("Invalid response format");
     }
 
-    return response.data.map((file: MongoFiles) => ({
-      fileId: file.file_id, // Updated to match the response structure
-      name: file.filename, // Updated to match the response structure
+    // Handle both array and object responses
+    const filesData = Array.isArray(response.data) ? response.data : [response.data];
+    
+    // Transform the data to match UploadedFile interface
+    return filesData.map((file: MongoFiles) => ({
+      fileId: file.file_id || file._id,
+      name: file.filename,
       url: file.url,
-      dateUploaded: file.uploaded_at, // Updated to match the response structure
-    })) as UploadedFile[]; // Convert MongoFiles to UploadedFile
+      dateUploaded: file.uploaded_at
+    }));
+
   } catch (error) {
-    console.error("Error fetching files:", error);
-    throw new Error("Failed to fetch files");
+    console.error('Error in getFilesService:', error);
+    throw error;
   }
 };
