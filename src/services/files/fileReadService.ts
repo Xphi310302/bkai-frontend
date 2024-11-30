@@ -14,10 +14,11 @@ export interface MongoFiles {
 
 export const getFilesService = async (): Promise<UploadedFile[]> => {
   try {
-    const response = await axios.get(`${BASE_URL}/ap1/v1/files`);
+    const response = await axios.get(`${BASE_URL}/api/v1/files`);
     
     // Test the API response
     if (!response.data || !Array.isArray(response.data)) {
+      console.error('Unexpected API response:', response.data);
       throw new Error("Invalid response format");
     }
 
