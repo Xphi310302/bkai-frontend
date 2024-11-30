@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axiosInstance from '../axios-config';
 import type { FAQ } from '../../components/FAQsPage/types';
 import { getFilesService } from "../files/fileReadService";
 import { UploadedFile } from '@/components/UploadPage/FileTable';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL; 
+// const BASE_URL = import.meta.env.VITE_BACKEND_URL; 
 
 export async function getFAQsByDocument(fileName: string): Promise<FAQ[]> {
   try {
-    const response = await axios.get(`${BASE_URL}/api/v1/get-faqs-by-file-name/${fileName}`);
+    const response = await axiosInstance.get(`/api/v1/get-faqs-by-file-name/${fileName}`);
     const data = response.data; // Directly use response.data
 
     // Log the entire response for debugging
@@ -43,7 +43,7 @@ export const getDocuments = async (): Promise<UploadedFile[]> => {
 
 // export async function updateFAQ(faq: FAQ): Promise<FAQ> {
 //   try {
-//     const response = await axios.put(`${BASE_URL}/faqs/${faq.id}`, {
+//     const response = await axiosInstance.put(`/faqs/${faq.id}`, {
 //       question: faq.question,
 //       answer: faq.answer,
 //       documentId: faq.file_id

@@ -1,6 +1,7 @@
 // src/services/chatbot/api.ts
-import axios from 'axios';
+import axiosInstance from '../axios-config';
 import { v4 as uuidv4 } from 'uuid'; 
+
 const BASE_URL = import.meta.env.VITE_BACKEND_URL; // Replace with your actual backend URL
 console.log(BASE_URL);
 
@@ -21,16 +22,11 @@ export async function sendMessage(message: string): Promise<string> {
     localStorage.setItem('conversation_id', conversationId);
 
     console.log('Sending message:', message, 'with conversation ID:', conversationId);
-    const response = await axios.post<ChatResponse>(
-      `${BASE_URL}/api/v1/chat`,
+    const response = await axiosInstance.post<ChatResponse>(
+      `/api/v1/chat`,
       {
         conversation_id: conversationId,
         message: message,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
       }
     );
 
