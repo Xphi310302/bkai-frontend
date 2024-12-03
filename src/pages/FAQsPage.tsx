@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getFAQsByDocument, getDocuments } from "../services/faqs/api";
 import type { FAQ, Document } from "../components/FAQsPage/types"; // Import Document type
-import { UploadedFile } from "../components/UploadPage/FileTable"; // Import UploadedFile
+import { UploadedFile } from "../components/UploadPage/types/files"; // Corrected import for UploadedFile
 import FAQItem from "../components/FAQsPage/FAQItem"; // Importing FAQItem
 import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Importing DocumentSelector
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -88,8 +88,8 @@ const FAQsPage: React.FC = () => {
         const uploadedFiles: UploadedFile[] = await getDocuments();
         const docs: Document[] = uploadedFiles.map((file) => ({
           id: file.fileId,
-          name: file.name,
-          url: file.url,
+          name: file.fileName,
+          url: file.fileUrl,
         }));
         setDocuments(docs);
       } catch (error) {

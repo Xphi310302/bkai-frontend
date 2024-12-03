@@ -1,7 +1,7 @@
 import axiosInstance from '../axios-config';
 import type { FAQ } from '../../components/FAQsPage/types';
 import { getFilesService } from "../files/fileReadService";
-import { UploadedFile } from '@/components/UploadPage/FileTable';
+import { UploadedFile } from '@/components/UploadPage/types/files';
 
 // const BASE_URL = import.meta.env.VITE_BACKEND_URL; 
 
