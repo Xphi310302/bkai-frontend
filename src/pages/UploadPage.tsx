@@ -24,8 +24,14 @@ const UploadPage: React.FC = () => {
       if (sortField === 'fileName') {
         comparison = a.fileName.localeCompare(b.fileName);
       } else {
-        comparison = new Date(b.dateModified).getTime() - new Date(a.dateModified).getTime();
+        comparison = new Date(a.dateModified).getTime() - new Date(b.dateModified).getTime();
       }
+      
+      // If primary sort values are equal, use fileId as a stable secondary sort
+      if (comparison === 0) {
+        comparison = a.fileId.localeCompare(b.fileId);
+      }
+      
       return sortDirection === 'asc' ? comparison : -comparison;
     });
   };

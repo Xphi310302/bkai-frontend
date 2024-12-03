@@ -26,24 +26,33 @@ const FileTable: React.FC<FileTableProps> = ({
   sortDirection 
 }) => {
   const getSortIcon = (field: 'fileName' | 'dateModified') => {
+    const iconClass = "absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4";
+    
     if (sortField !== field) {
       return (
-        <FontAwesomeIcon 
-          icon={faSort} 
-          className="ml-2 text-gray-400 transition-colors duration-200 ease-in-out group-hover:text-green-500" 
-        />
+        <span className="inline-block relative w-4 h-4">
+          <FontAwesomeIcon 
+            icon={faSort} 
+            className={`${iconClass} text-gray-400 opacity-50 group-hover:opacity-100 transition-opacity`}
+          />
+        </span>
       );
     }
-    return sortDirection === 'asc' ? (
-      <FontAwesomeIcon 
-        icon={faSortUp} 
-        className="ml-2 text-green-600 transform transition-transform duration-200 ease-in-out" 
-      />
-    ) : (
-      <FontAwesomeIcon 
-        icon={faSortDown} 
-        className="ml-2 text-green-600 transform transition-transform duration-200 ease-in-out" 
-      />
+    
+    return (
+      <span className="inline-block relative w-4 h-4">
+        {sortDirection === 'asc' ? (
+          <FontAwesomeIcon 
+            icon={faSortUp} 
+            className={`${iconClass} text-green-600`}
+          />
+        ) : (
+          <FontAwesomeIcon 
+            icon={faSortDown} 
+            className={`${iconClass} text-green-600`}
+          />
+        )}
+      </span>
     );
   };
 
@@ -55,40 +64,60 @@ const FileTable: React.FC<FileTableProps> = ({
     }
   };
 
-  const TableHeader: React.FC<{
-    field: 'fileName' | 'dateModified';
-    children: React.ReactNode;
-  }> = ({ field, children }) => (
-    <th 
-      onClick={() => onSort(field)}
-      className={`
-        py-3 px-6 border-b-2 border-gray-200 bg-gray-50
-        text-left text-xs font-semibold text-gray-600 uppercase tracking-wider
-        cursor-pointer select-none group
-        transition-colors duration-200 ease-in-out font-inter
-        ${sortField === field ? 'bg-green-50' : 'hover:bg-gray-100'}
-      `}
-    >
-      <div className="flex items-center space-x-1">
-        <span className={`
-          transition-colors duration-200 ease-in-out
-          ${sortField === field ? 'text-green-700' : 'group-hover:text-green-600'}
-        `}>
-          {children}
-        </span>
-        {getSortIcon(field)}
-      </div>
-    </th>
-  );
-
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-      <table className="min-w-full divide-y divide-gray-200 font-roboto">
+      <table className="min-w-full table-fixed">
+        <colgroup>
+          <col className="w-1/2" />
+          <col className="w-1/4" />
+          <col className="w-1/4" />
+        </colgroup>
         <thead>
           <tr>
-            <TableHeader field="fileName">Tên tệp</TableHeader>
-            <TableHeader field="dateModified">Ngày cập nhật</TableHeader>
-            <th className="py-3 px-6 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <th 
+              onClick={() => onSort('fileName')}
+              className={`
+                relative py-3 px-6 border-b-2 border-gray-200 bg-gray-50
+                text-left text-xs font-semibold text-gray-600 uppercase tracking-wider
+                cursor-pointer select-none group
+                transition-colors duration-200 ease-in-out font-inter
+                ${sortField === 'fileName' ? 'bg-green-50' : 'hover:bg-gray-100'}
+              `}
+            >
+              <div className="flex items-center justify-between">
+                <span className={`
+                  transition-colors duration-200 ease-in-out
+                  ${sortField === 'fileName' ? 'text-green-700' : 'group-hover:text-green-600'}
+                `}>
+                  Tên tệp
+                </span>
+                {getSortIcon('fileName')}
+              </div>
+            </th>
+            <th 
+              onClick={() => onSort('dateModified')}
+              className={`
+                relative py-3 px-6 border-b-2 border-gray-200 bg-gray-50
+                text-left text-xs font-semibold text-gray-600 uppercase tracking-wider
+                cursor-pointer select-none group
+                transition-colors duration-200 ease-in-out font-inter
+                ${sortField === 'dateModified' ? 'bg-green-50' : 'hover:bg-gray-100'}
+                text-center
+              `}
+            >
+              <div className="flex items-center justify-center relative">
+                <span className={`
+                  transition-colors duration-200 ease-in-out
+                  ${sortField === 'dateModified' ? 'text-green-700' : 'group-hover:text-green-600'}
+                `}>
+                  Ngày cập nhật
+                </span>
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  {getSortIcon('dateModified')}
+                </div>
+              </div>
+            </th>
+            <th className="py-3 px-6 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
               Hành động
             </th>
           </tr>
@@ -100,24 +129,24 @@ const FileTable: React.FC<FileTableProps> = ({
                 key={file.fileId} 
                 className="transition-colors duration-150 ease-in-out hover:bg-gray-50"
               >
-                <td className="py-4 px-6 whitespace-nowrap">
+                <td className="py-4 px-6 whitespace-nowrap overflow-hidden text-ellipsis w-1/2">
                   <div className="flex items-center space-x-3">
                     <FontAwesomeIcon 
                       icon={faFilePdf} 
-                      className="text-red-500 w-6 h-6" 
+                      className="text-red-500 w-6 h-6 flex-shrink-0" 
                     />
-                    <div className="text-base font-medium text-gray-900 font-inter tracking-tight">
+                    <div className="text-base font-medium text-gray-900 font-inter tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">
                       {file.fileName}
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-6 whitespace-nowrap">
-                  <div className="text-base text-gray-500 font-roboto">
+                <td className="py-4 px-6 whitespace-nowrap text-center w-1/4">
+                  <div className="text-base text-gray-500 font-roboto inline-block">
                     {new Date(file.dateModified).toLocaleString('vi-VN')}
                   </div>
                 </td>
-                <td className="py-4 px-6 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center space-x-4">
+                <td className="py-4 px-6 whitespace-nowrap text-sm font-medium w-1/4 text-center">
+                  <div className="flex items-center justify-center space-x-4">
                     <a
                       href={file.fileUrl}
                       target="_blank"
