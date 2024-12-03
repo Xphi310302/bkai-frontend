@@ -1,26 +1,50 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import FileUploader from "../components/UploadPage/FileUploader";
 import FileTable from "../components/UploadPage/FileTable";
 import Pagination from "../components/UploadPage/Pagination";
-import { UploadedFile } from "../components/UploadPage/types/files";
-import { deleteFileService } from "../services/files/fileDeleteService";
 import { getFilesService } from "../services/files/fileReadService";
+import { deleteFileService } from "../services/files/fileDeleteService";
+import { UploadedFile } from "../components/UploadPage/types/files";
+
+type SortField = 'fileName' | 'dateModified';
+type SortDirection = 'asc' | 'desc';
 
 const UploadPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [currentFiles, setCurrentFiles] = useState<UploadedFile[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [sortField, setSortField] = useState<SortField>('fileName');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const filesPerPage = 10;
+
+  const sortFiles = (files: UploadedFile[]): UploadedFile[] => {
+    return [...files].sort((a, b) => {
+      let comparison = 0;
+      if (sortField === 'fileName') {
+        comparison = a.fileName.localeCompare(b.fileName);
+      } else {
+        comparison = new Date(b.dateModified).getTime() - new Date(a.dateModified).getTime();
+      }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      // If clicking the same field, toggle direction
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      // If clicking a new field, set it as the sort field and default to ascending
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   const fetchFiles = async () => {
     try {
       const response = await getFilesService();
-      // Sort files alphabetically by fileName
-      const sortedFiles = response.sort((a, b) => 
-        a.fileName.localeCompare(b.fileName)
-      );
-      setUploadedFiles(sortedFiles);
+      setUploadedFiles(response);
     } catch (error) {
       console.error("Error fetching files:", error);
     }
@@ -31,21 +55,23 @@ const UploadPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Filter and sort files based on search query
+    // Filter and sort files
     const filteredFiles = uploadedFiles.filter((file) =>
       file && file.fileName ? file.fileName.toLowerCase().includes(searchQuery.toLowerCase()) : false
     );
+    
+    const sortedFiles = sortFiles(filteredFiles);
 
-    // Paginate the filtered files
+    // Paginate the filtered and sorted files
     const startIndex = (currentPage - 1) * filesPerPage;
     const endIndex = startIndex + filesPerPage;
-    setCurrentFiles(filteredFiles.slice(startIndex, endIndex));
-  }, [uploadedFiles, searchQuery, currentPage]);
+    setCurrentFiles(sortedFiles.slice(startIndex, endIndex));
+  }, [uploadedFiles, searchQuery, currentPage, sortField, sortDirection]);
 
   const onDeleteFile = async (fileId: string) => {
     try {
       await deleteFileService(fileId);
-      await fetchFiles(); // Refresh the file list after deletion
+      fetchFiles();
     } catch (error) {
       console.error('Error deleting file:', error);
     }
@@ -69,7 +95,13 @@ const UploadPage: React.FC = () => {
           existingFiles={uploadedFiles} 
         />
       </div>
-      <FileTable files={currentFiles} onDeleteFile={onDeleteFile} />
+      <FileTable 
+        files={currentFiles} 
+        onDeleteFile={onDeleteFile}
+        onSort={handleSort}
+        sortField={sortField}
+        sortDirection={sortDirection}
+      />
       <Pagination
         currentPage={currentPage}
         totalPages={Math.ceil(uploadedFiles.length / filesPerPage) || 1}
