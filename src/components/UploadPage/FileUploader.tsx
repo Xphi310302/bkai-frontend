@@ -1,30 +1,50 @@
 import React, { useRef, useState, useEffect } from "react";
 import { uploadToCloudinary } from "../../services/files/fileUploadService";
+import { UploadedFile } from "../UploadPage/types/files";
 
 interface FileUploaderProps {
   onUploadComplete: () => void; // Callback for when all uploads are complete
+  existingFiles: UploadedFile[]; // List of existing files to check for duplicates
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, existingFiles }) => {
   const [files, setFiles] = useState<File[]>([]); // Store the selected files
   const [error, setError] = useState<string | null>(null);
-  const [isProgressVisible, setIsProgressVisible] = useState<boolean>(false); // Control visibility of progress bar
-  const [uploadingCount, setUploadingCount] = useState<number>(0); // Track number of files being uploaded
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference to the file input
+  const [duplicateFiles, setDuplicateFiles] = useState<string[]>([]);
+  const [isProgressVisible, setIsProgressVisible] = useState<boolean>(false);
+  const [uploadingCount, setUploadingCount] = useState<number>(0);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    // Clear files when component unmounts or when navigating away
     return () => {
       setFiles([]);
       setError(null);
+      setDuplicateFiles([]);
       setIsProgressVisible(false);
       setUploadingCount(0);
+      setUploadedFiles([]);
     };
   }, []);
 
+  const openFileDialog = () => {
+    fileInputRef.current?.click();
+  };
+
+  const resetMessages = () => {
+    setError(null);
+    setDuplicateFiles([]);
+    setIsProgressVisible(true);
+    setUploadingCount(0);
+    setUploadedFiles([]);
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
+      // Sort files alphabetically by name
+      const selectedFiles = Array.from(e.target.files).sort((a, b) => 
+        a.name.localeCompare(b.name)
+      );
 
       // Validate file type
       const invalidFiles = selectedFiles.filter(file => !file.type.toLowerCase().includes('pdf'));
@@ -39,79 +59,110 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete }) => {
         return;
       }
 
-      setFiles(selectedFiles); // Set the selected files
-      resetMessages(); // Clear messages
+      // Check for duplicate file names
+      const duplicateFiles = selectedFiles.filter(file => 
+        existingFiles.some(existingFile => existingFile.fileName === file.name)
+      );
+
+      if (duplicateFiles.length > 0) {
+        setDuplicateFiles(duplicateFiles.map(f => f.name));
+        return;
+      }
+
+      setFiles(selectedFiles);
+      resetMessages();
 
       // Start uploading files immediately after selection
       await uploadFiles(selectedFiles);
     }
   };
 
-  const resetMessages = () => {
-    setError(null); // Clear any previous errors
-    setIsProgressVisible(true); // Show progress bar
-    setUploadingCount(0); // Reset uploading count
-  };
-
   const uploadFiles = async (files: File[]) => {
     const uploadPromises = files.map(async (file) => {
-      setUploadingCount((prev) => prev + 1); // Increment uploading count
-      await uploadToCloudinary(file, () => {}); // Get URL and status
-      setUploadingCount((prev) => prev - 1); // Decrement uploading count after upload
+      try {
+        setUploadingCount((prev) => prev + 1);
+        await uploadToCloudinary(file, () => {});
+        setUploadedFiles(prev => [...prev, file]);
+      } catch (err) {
+        console.error(`Error uploading file ${file.name}:`, err);
+        setError(`Lỗi tải tệp ${file.name}. Vui lòng thử lại!`);
+      } finally {
+        setUploadingCount((prev) => prev - 1);
+      }
     });
 
     try {
-      await Promise.all(uploadPromises); // Upload each file
-
-      // Call onUploadComplete after all files are uploaded
+      await Promise.all(uploadPromises);
       onUploadComplete();
     } catch (err) {
       setError("Tải tệp lên thất bại. Vui lòng thử lại!");
       console.error(err);
     } finally {
-      // Hide progress bar after upload is complete
       setIsProgressVisible(false);
     }
   };
 
-  const openFileDialog = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click(); // Trigger the file input click
-    }
+  const calculateProgress = () => 
+    uploadingCount > 0 ? ((uploadedFiles.length) / files.length) * 100 : 0;
+
+  const closeDuplicatePopup = () => {
+    setDuplicateFiles([]);
   };
 
-  const progressPercentage =
-    ((files.length - uploadingCount) / files.length) * 100; // Calculate progress percentage
-
   return (
-    <div>
+    <div className="relative">
       <input
         type="file"
         accept=".pdf,application/pdf"
         onChange={handleFileChange}
         className="hidden"
-        multiple // Allow multiple file selection
-        ref={fileInputRef} // Attach the ref to the file input
+        multiple
+        ref={fileInputRef}
       />
       <button
-        onClick={openFileDialog} // Open file dialog on button click
-        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+        onClick={openFileDialog}
+        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
       >
         Tải tệp lên
       </button>
-      {error && <p className="text-red-500">{error}</p>}
 
-      {/* Loading Bar Popup */}
-      {isProgressVisible && (
+      {error && (
+        <div className="text-red-500 mt-2">
+          {error}
+        </div>
+      )}
+
+      {duplicateFiles.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h2 className="text-xl font-bold text-red-600 mb-4">Tệp đã tồn tại</h2>
+            <p className="mb-4">Các tệp sau đã tồn tại trong hệ thống:</p>
+            <ul className="list-disc list-inside mb-4">
+              {duplicateFiles.map((fileName, index) => (
+                <li key={index} className="text-gray-700">{fileName}</li>
+              ))}
+            </ul>
+            <div className="flex justify-end">
+              <button 
+                onClick={closeDuplicatePopup}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isProgressVisible && uploadingCount > 0 && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-50 border border-green-300 rounded-lg shadow-lg p-6 z-50 transition-transform scale-105">
           <p className="text-green-800 font-bold text-lg">
             Đang tải lên... {uploadingCount} tệp đang được xử lý
-          </p>{" "}
-          {/* Display number of files being processed */}
+          </p>
           <div className="bg-green-200 rounded-full h-2 mt-2">
             <div
               className="bg-green-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }} // Set width based on progress percentage
+              style={{ width: `${calculateProgress()}%` }}
             />
           </div>
           <p className="text-green-600 mt-2">
@@ -119,19 +170,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete }) => {
           </p>
         </div>
       )}
-      <style>{`
-        @keyframes loading {
-          0% {
-            width: 0%;
-          }
-          50% {
-            width: 50%;
-          }
-          100% {
-            width: 100%;
-          }
-        }
-      `}</style>
     </div>
   );
 };

@@ -8,16 +8,21 @@ import { getFilesService } from "../services/files/fileReadService";
 
 const UploadPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentFiles, setCurrentFiles] = useState<UploadedFile[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const filesPerPage = 10;
 
   const fetchFiles = async () => {
     try {
-      const files = await getFilesService();
-      setUploadedFiles(files);
+      const response = await getFilesService();
+      // Sort files alphabetically by fileName
+      const sortedFiles = response.sort((a, b) => 
+        a.fileName.localeCompare(b.fileName)
+      );
+      setUploadedFiles(sortedFiles);
     } catch (error) {
-      console.error('Error fetching files:', error);
+      console.error("Error fetching files:", error);
     }
   };
 
@@ -25,14 +30,17 @@ const UploadPage: React.FC = () => {
     fetchFiles();
   }, []);
 
-  const filteredFiles = uploadedFiles.filter((file) =>
-    file && file.fileName ? file.fileName.toLowerCase().includes(searchQuery.toLowerCase()) : false
-  );
+  useEffect(() => {
+    // Filter and sort files based on search query
+    const filteredFiles = uploadedFiles.filter((file) =>
+      file && file.fileName ? file.fileName.toLowerCase().includes(searchQuery.toLowerCase()) : false
+    );
 
-  const indexOfLastFile = currentPage * filesPerPage;
-  const indexOfFirstFile = indexOfLastFile - filesPerPage;
-  const currentFiles = filteredFiles.slice(indexOfFirstFile, indexOfLastFile);
-  const totalPages = Math.ceil(filteredFiles.length / filesPerPage) || 1;
+    // Paginate the filtered files
+    const startIndex = (currentPage - 1) * filesPerPage;
+    const endIndex = startIndex + filesPerPage;
+    setCurrentFiles(filteredFiles.slice(startIndex, endIndex));
+  }, [uploadedFiles, searchQuery, currentPage]);
 
   const onDeleteFile = async (fileId: string) => {
     try {
@@ -56,12 +64,15 @@ const UploadPage: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-green-500"
         />
-        <FileUploader onUploadComplete={fetchFiles} />
+        <FileUploader 
+          onUploadComplete={fetchFiles} 
+          existingFiles={uploadedFiles} 
+        />
       </div>
       <FileTable files={currentFiles} onDeleteFile={onDeleteFile} />
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
+        totalPages={Math.ceil(uploadedFiles.length / filesPerPage) || 1}
         onPageChange={setCurrentPage}
       />
     </div>
