@@ -2,10 +2,17 @@ import React, { useRef, useState, useEffect } from "react";
 import { uploadToCloudinary } from "../../services/files/fileUploadService";
 
 interface FileUploaderProps {
-  onFileUpload: (fileID: string, fileUrl: string, fileName: string) => void; // Prop to handle file upload
+  onFileUpload: (
+    fileID: string, 
+    fileName: string, 
+    fileUrl: string, 
+    dateModified: string, 
+    isProcessing: boolean
+  ) => void; // Prop to handle file upload
+  onUploadComplete: () => void; // New callback for when all uploads are done
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload, onUploadComplete }) => {
   const [files, setFiles] = useState<File[]>([]); // Store the selected files
   const [error, setError] = useState<string | null>(null);
   const [isProgressVisible, setIsProgressVisible] = useState<boolean>(false); // Control visibility of progress bar
@@ -24,7 +31,21 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files); // Convert FileList to an array
+      const selectedFiles = Array.from(e.target.files);
+
+      // Validate file type
+      const invalidFiles = selectedFiles.filter(file => !file.type.toLowerCase().includes('pdf'));
+      if (invalidFiles.length > 0) {
+        setError('Chỉ chấp nhận file PDF');
+        return;
+      }
+
+      // Validate file count
+      if (selectedFiles.length > 10) {
+        setError('Chỉ được phép tải lên tối đa 10 file một lần');
+        return;
+      }
+
       setFiles(selectedFiles); // Set the selected files
       resetMessages(); // Clear messages
 
@@ -42,9 +63,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
   const uploadFiles = async (files: File[]) => {
     const uploadPromises = files.map(async (file) => {
       setUploadingCount((prev) => prev + 1); // Increment uploading count
-      const { id, url, status } = await uploadToCloudinary(file, () => {}); // Get URL and status
+      const { fileId, fileName, fileUrl, dateModified, isProcessing } = await uploadToCloudinary(file, () => {}); // Get URL and status
       setUploadingCount((prev) => prev - 1); // Decrement uploading count after upload
-      return { id, url, name: file.name, status }; // Include name in the return
+      return { fileId, fileName, fileUrl, dateModified, isProcessing }; // Include name in the return
     });
 
     try {
@@ -52,8 +73,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
 
       // Call the onFileUpload for each uploaded file
       results.forEach((result) => {
-        onFileUpload(result.id, result.url, result.name); // Pass id, url, and name
+        onFileUpload(result.fileId, result.fileName, result.fileUrl, result.dateModified, result.isProcessing); // Pass id, url, and name
       });
+
+      // Call onUploadComplete after all files are uploaded
+      onUploadComplete();
     } catch (err) {
       setError("Tải tệp lên thất bại. Vui lòng thử lại!");
       console.error(err);
@@ -76,7 +100,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload }) => {
     <div>
       <input
         type="file"
-        accept=".pdf,.doc,.docx,image/*"
+        accept=".pdf,application/pdf"
         onChange={handleFileChange}
         className="hidden"
         multiple // Allow multiple file selection

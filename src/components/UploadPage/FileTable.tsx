@@ -1,12 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faTrash } from "@fortawesome/free-solid-svg-icons";
-export interface UploadedFile {
-  fileId: string;
-  name: string;
-  url: string;
-  dateUploaded: string;
-}
+import { UploadedFile } from "./types/files";
 
 interface FileTableProps {
   files: UploadedFile[];
@@ -31,7 +26,7 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
               Tên tệp
             </th>
             <th className="py-2 px-4 border-b text-green-700 w-1/4">
-              Ngày tạo
+              Ngày cập nhật
             </th>
             <th className="py-2 px-4 border-b text-green-700 w-1/6">
               Hành động
@@ -42,12 +37,12 @@ const FileTable: React.FC<FileTableProps> = ({ files, onDeleteFile }) => {
           {files.length > 0 ? (
             files.map((file) => (
               <tr key={file.fileId} className="hover:bg-gray-100">
-                <td className="py-2 px-4 border-b">{file.name}</td>
-                <td className="py-2 px-4 border-b">{file.dateUploaded}</td>
+                <td className="py-2 px-4 border-b">{file.fileName}</td>
+                <td className="py-2 px-4 border-b">{file.dateModified}</td>
                 <td className="py-2 px-4 border-b">
                   <div className="flex space-x-8"> {/* Further increased spacing between icons */}
                     <a
-                      href={file.url}
+                      href={file.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-green-600"

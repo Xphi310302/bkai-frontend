@@ -3,7 +3,7 @@ import axiosInstance from '../axios-config';
 export const uploadToCloudinary = async (
   file: File,
   setUploadProgress: (progress: number) => void
-): Promise<{ url: string; status: string; id: string }> => {
+): Promise<{ fileId: string; fileName: string; fileUrl: string; dateModified: string; isProcessing: boolean }> => {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -24,9 +24,13 @@ export const uploadToCloudinary = async (
       }
     );
 
-    const url = response.data.url;
-    const id = response.data.file_id;
-    return { id, url, status: "success" };
+    const fileUrl = response.data.file_url;
+    const fileId = response.data.file_id;
+    const dateModified = response.data.date_modified;
+    const isProcessing = response.data.is_processing;
+    const fileName = response.data.filename;
+
+    return { fileId, fileName, fileUrl, dateModified, isProcessing };
   } catch (error) {
     console.error('Error uploading file:', error);
     throw error;

@@ -1,37 +1,35 @@
 import axiosInstance from '../axios-config';
-import { UploadedFile } from '../../components/UploadPage/FileTable'; // Import UploadedFile interface
+import { UploadedFile } from '../../components/UploadPage/types/files'; 
 
-interface MongoFiles {
-  _id: string;
+interface APIResponse {
   file_id: string;
-  file_ext: string;
-  filename: string;
-  url: string;
-  uploaded_at: string;
+  file_name: string;
+  file_url: string;
+  date_modified: string;
+  is_processing: boolean;
 }
 
 export const getFilesService = async (): Promise<UploadedFile[]> => {
   try {
-    const response = await axiosInstance.get('/api/v1/files');
-    
-    console.log('API Response:', response.data); // Debug log
+    const response = await axiosInstance.get('api/v1/files');
 
     if (!response.data) {
       console.error('No data in API response');
-      throw new Error("Invalid response format");
+      return [];
     }
 
     const filesData = Array.isArray(response.data) ? response.data : [response.data];
     
-    return filesData.map((file: MongoFiles) => ({
-      fileId: file.file_id || file._id,
-      name: file.filename,
-      url: file.url,
-      dateUploaded: file.uploaded_at
+    return filesData.map((file: APIResponse) => ({
+      fileId: file.file_id,
+      fileName: file.file_name,
+      fileUrl: file.file_url,
+      dateModified: file.date_modified,
+      isProcessing: file.is_processing
     }));
 
   } catch (error) {
     console.error('Error in getFilesService:', error);
-    throw error;
+    return [];
   }
 };
