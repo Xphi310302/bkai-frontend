@@ -1,6 +1,13 @@
 import React from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload, faTrash, faSort, faSortUp, faSortDown } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faDownload, 
+  faTrash, 
+  faSort, 
+  faSortUp, 
+  faSortDown, 
+  faFilePdf 
+} from "@fortawesome/free-solid-svg-icons";
 import { UploadedFile } from "./types/files";
 
 interface FileTableProps {
@@ -94,8 +101,14 @@ const FileTable: React.FC<FileTableProps> = ({
                 className="transition-colors duration-150 ease-in-out hover:bg-gray-50"
               >
                 <td className="py-4 px-6 whitespace-nowrap">
-                  <div className="text-base font-medium text-gray-900 font-inter tracking-tight">
-                    {file.fileName}
+                  <div className="flex items-center space-x-3">
+                    <FontAwesomeIcon 
+                      icon={faFilePdf} 
+                      className="text-red-500 w-6 h-6" 
+                    />
+                    <div className="text-base font-medium text-gray-900 font-inter tracking-tight">
+                      {file.fileName}
+                    </div>
                   </div>
                 </td>
                 <td className="py-4 px-6 whitespace-nowrap">
