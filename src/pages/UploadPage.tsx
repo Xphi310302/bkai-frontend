@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FileUploader from "../components/UploadPage/FileUploader";
 import FileTable from "../components/UploadPage/FileTable";
 import Pagination from "../components/UploadPage/Pagination";
-import { UploadedFile } from "../components/UploadPage/types/files.ts";
+import { UploadedFile } from "../components/UploadPage/types/files";
 import { deleteFileService } from "../services/files/fileDeleteService";
-import { getFilesService } from "../services/files/fileReadService"; // Import the service
+import { getFilesService } from "../services/files/fileReadService";
 
 const UploadPage: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -23,7 +23,7 @@ const UploadPage: React.FC = () => {
 
   useEffect(() => {
     fetchFiles();
-  }, []); // Empty dependency array to run only on mount
+  }, []);
 
   const filteredFiles = uploadedFiles.filter((file) =>
     file && file.fileName ? file.fileName.toLowerCase().includes(searchQuery.toLowerCase()) : false
@@ -34,27 +34,12 @@ const UploadPage: React.FC = () => {
   const currentFiles = filteredFiles.slice(indexOfFirstFile, indexOfLastFile);
   const totalPages = Math.ceil(filteredFiles.length / filesPerPage) || 1;
 
-  const onFileUpload = (fileId: string, fileName: string, fileUrl: string, dateModified: string, isProcessing: boolean) => {
-    setUploadedFiles((prevFiles) => [
-      ...prevFiles,
-      {
-        fileId,
-        fileName,
-        fileUrl,
-        dateModified,
-        isProcessing
-      },
-    ]);
-  };
-
   const onDeleteFile = async (fileId: string) => {
     try {
       await deleteFileService(fileId);
-      setUploadedFiles((prevFiles) =>
-        prevFiles.filter((file) => file.fileId !== fileId)
-      );
+      await fetchFiles(); // Refresh the file list after deletion
     } catch (error) {
-      console.error("Error deleting file:", error);
+      console.error('Error deleting file:', error);
     }
   };
 
@@ -71,7 +56,7 @@ const UploadPage: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-green-500"
         />
-        <FileUploader onFileUpload={onFileUpload} onUploadComplete={fetchFiles} />
+        <FileUploader onUploadComplete={fetchFiles} />
       </div>
       <FileTable files={currentFiles} onDeleteFile={onDeleteFile} />
       <Pagination

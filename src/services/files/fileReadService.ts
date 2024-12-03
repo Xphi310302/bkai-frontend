@@ -19,7 +19,7 @@ export const getFilesService = async (): Promise<UploadedFile[]> => {
     }
 
     const filesData = Array.isArray(response.data) ? response.data : [response.data];
-    
+
     return filesData.map((file: APIResponse) => ({
       fileId: file.file_id,
       fileName: file.file_name,

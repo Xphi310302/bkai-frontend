@@ -2,17 +2,10 @@ import React, { useRef, useState, useEffect } from "react";
 import { uploadToCloudinary } from "../../services/files/fileUploadService";
 
 interface FileUploaderProps {
-  onFileUpload: (
-    fileID: string, 
-    fileName: string, 
-    fileUrl: string, 
-    dateModified: string, 
-    isProcessing: boolean
-  ) => void; // Prop to handle file upload
-  onUploadComplete: () => void; // New callback for when all uploads are done
+  onUploadComplete: () => void; // Callback for when all uploads are complete
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload, onUploadComplete }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete }) => {
   const [files, setFiles] = useState<File[]>([]); // Store the selected files
   const [error, setError] = useState<string | null>(null);
   const [isProgressVisible, setIsProgressVisible] = useState<boolean>(false); // Control visibility of progress bar
@@ -63,18 +56,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUpload, onUploadCompl
   const uploadFiles = async (files: File[]) => {
     const uploadPromises = files.map(async (file) => {
       setUploadingCount((prev) => prev + 1); // Increment uploading count
-      const { fileId, fileName, fileUrl, dateModified, isProcessing } = await uploadToCloudinary(file, () => {}); // Get URL and status
+      await uploadToCloudinary(file, () => {}); // Get URL and status
       setUploadingCount((prev) => prev - 1); // Decrement uploading count after upload
-      return { fileId, fileName, fileUrl, dateModified, isProcessing }; // Include name in the return
     });
 
     try {
-      const results = await Promise.all(uploadPromises); // Upload each file
-
-      // Call the onFileUpload for each uploaded file
-      results.forEach((result) => {
-        onFileUpload(result.fileId, result.fileName, result.fileUrl, result.dateModified, result.isProcessing); // Pass id, url, and name
-      });
+      await Promise.all(uploadPromises); // Upload each file
 
       // Call onUploadComplete after all files are uploaded
       onUploadComplete();
