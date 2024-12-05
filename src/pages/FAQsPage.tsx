@@ -1,32 +1,121 @@
 // src/pages/FAQsPage.tsx
 import React, { useEffect, useState } from "react";
-import { getFAQsByDocument, getDocuments } from "../services/faqs/api";
-import type { FAQ, Document } from "../components/FAQsPage/types"; // Import Document type
-import { UploadedFile } from "../components/UploadPage/types/files"; // Corrected import for UploadedFile
-import FAQItem from "../components/FAQsPage/FAQItem"; // Importing FAQItem
-import DocumentSelector from "../components/FAQsPage/DocumentSelector"; // Importing DocumentSelector
+import { getFAQsByFileId } from "../services/faqs/api";
+import type { FAQ } from "../components/FAQsPage/types"; 
+import FAQItem from "../components/FAQsPage/FAQItem"; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { getFileByIdService } from "../services/files/fileReadService";
+
+const DocumentComponent: React.FC<{ 
+  fileName: string; 
+  faqs: FAQ[]; 
+  onCheckAll: () => void; 
+  onVerifyAll: () => void; 
+  onRemove: () => void; 
+  onVerifyChange: (faqId: string) => void; 
+}> = ({ 
+  fileName, 
+  faqs, 
+  onCheckAll, 
+  onVerifyAll, 
+  onRemove, 
+  onVerifyChange 
+}) => (
+  <div
+    className="bg-green-50 p-6 mb-10 rounded-lg shadow-lg border-2 border-green-300"
+    key={fileName}
+    data-document-id={fileName}
+  >
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-2xl font-semibold text-green-700">
+        {fileName}
+      </h2>
+      <div>
+        <button
+          className="mt-0 bg-green-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-green-700 hover:scale-105"
+          onClick={onCheckAll}
+        >
+          Chọn tất cả
+        </button>
+        <button
+          className="mt-0 bg-blue-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-blue-700 hover:scale-105 ml-2"
+          onClick={onVerifyAll}
+        >
+          Cập nhật dữ liệu
+        </button>
+        <button
+          className="mt-0 bg-red-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-red-700 hover:scale-105 ml-2"
+          onClick={onRemove}
+        >
+          <FontAwesomeIcon icon={faTrash} aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+    {faqs.map((faq) => (
+      <div
+        className="flex justify-between items-center mb-4 p-2 bg-white rounded shadow border border-green-400 w-full"
+        key={faq.faq_id}
+      >
+        <FAQItem
+          faq={faq}
+          onVerifyChange={onVerifyChange}
+        />
+      </div>
+    ))}
+  </div>
+);
+
 const FAQsPage: React.FC = () => {
   const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [isDocumentSelectorVisible, setDocumentSelectorVisible] =
-    useState(false);
   const [isLoading, setLoading] = useState(false);
-  const [isPopupVisible, setPopupVisible] = useState(false); // New state for popup visibility
+  const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>("");
 
-  const handleDocumentImport = async (fileName: string) => {
-    setLoading(true);
-    try {
-      const documentFaqs = await getFAQsByDocument(fileName);
-      setFaqs((prev) => new Map(prev).set(fileName, documentFaqs));
-      setDocumentSelectorVisible(false);
-    } catch (error) {
-      console.error("Không thể nhập câu hỏi thường gặp:", error);
-    } finally {
-      setLoading(false);
+  // Get fileId from URL search params
+  const searchParams = new URLSearchParams(window.location.search);
+  const fileId = searchParams.get('fileId');
+
+  useEffect(() => {
+    if (fileId) {
+      const fetchFileDetails = async () => {
+        try {
+          const fileDetails = await getFileByIdService(fileId);
+          if (fileDetails) {
+            setFileName(fileDetails.fileName);
+            // Set the document title to include the file name
+            document.title = `FAQs - ${fileDetails.fileName}`;
+          }
+        } catch (error) {
+          console.error("Error fetching file details:", error);
+        }
+      };
+
+      const fetchFAQs = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          console.log("Fetching FAQs for fileId:", fileId);
+          const documentFaqs = await getFAQsByFileId(fileId);
+          console.log("Received FAQs:", documentFaqs);
+          setFaqs(new Map().set(fileId, documentFaqs));
+        } catch (error) {
+          console.error("Error fetching FAQs:", error);
+          setError("Failed to fetch FAQs. Please try again later.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchFileDetails();
+      fetchFAQs();
     }
-  };
+
+    // Cleanup function to reset the title when component unmounts
+    return () => {
+      document.title = 'FAQs';
+    };
+  }, [fileId]);
 
   const handleCheckAll = (fileName: string) => {
     setFaqs((prev) => {
@@ -50,7 +139,6 @@ const FAQsPage: React.FC = () => {
   const handleVerifyAll = async (fileName: string) => {
     // Simulate updating to the database
     await updateFAQsToDatabase(fileName); // Assume this function updates the FAQs in the database
-    setPopupVisible(true); // Show the popup notification
   };
 
   //dummy update function
@@ -70,10 +158,6 @@ const FAQsPage: React.FC = () => {
     });
   };
 
-  const closePopup = () => {
-    setPopupVisible(false);
-  };
-
   const handleRemoveDocument = (fileName: string) => {
     setFaqs((prev) => {
       const updatedFAQs = new Map(prev);
@@ -82,127 +166,45 @@ const FAQsPage: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const uploadedFiles: UploadedFile[] = await getDocuments();
-        const docs: Document[] = uploadedFiles.map((file) => ({
-          id: file.fileId,
-          name: file.fileName,
-          url: file.fileUrl,
-        }));
-        setDocuments(docs);
-      } catch (error) {
-        console.error("Không thể tải tài liệu:", error);
-      }
-    };
-    init();
-  }, []);
+  const renderFAQsForFileId = () => {
+    if (isLoading) {
+      return <div className="text-center py-4 text-green-700">Loading FAQs...</div>;
+    }
 
-  const toggleDocumentSelector = () => {
-    setDocumentSelectorVisible((prev) => !prev);
+    if (error) {
+      return <div className="text-red-500 text-center py-4">{error}</div>;
+    }
+
+    if (!fileId || !faqs.has(fileId)) {
+      return <div className="text-center py-4 text-green-700">No FAQs found for this file.</div>;
+    }
+
+    const documentFAQs = faqs.get(fileId) || [];
+    
+    return (
+      <div className="px-8">
+        <DocumentComponent
+          fileName={fileName}
+          faqs={documentFAQs}
+          onCheckAll={() => handleCheckAll(fileId)}
+          onVerifyAll={() => handleVerifyAll(fileId)}
+          onRemove={() => handleRemoveDocument(fileId)}
+          onVerifyChange={(faqId) => handleVerifyChange(fileId, faqId)}
+        />
+      </div>
+    );
   };
 
   return (
     <div className="bg-gradient-to-b from-green-50 to-green-100 min-h-screen font-sans">
       <div className="text-center py-8">
         <h1 className="text-4xl font-extrabold text-green-800 mb-6">
-          Tạo Câu Hỏi Thường Gặp Mới
+          {'CÂU HỎI THƯỜNG GẶP'}
         </h1>
-        <button
-          className="bg-green-600 text-white px-8 py-3 rounded-full font-medium shadow-lg hover:bg-green-700 transition"
-          onClick={toggleDocumentSelector}
-        >
-          Nhập Câu Hỏi Thường Gặp
-        </button>
       </div>
-      {isLoading && (
-        <div className="text-center py-4">
-          <p className="text-lg text-green-700">
-            Đang tải câu hỏi thường gặp...
-          </p>
-        </div>
-      )}
-      <div className="px-8">
-        {Array.from(faqs.keys()).map((fileName) => {
-          const documentFAQs = faqs.get(fileName) || [];
-          return (
-            <div
-              className="bg-green-50 p-6 mb-10 rounded-lg shadow-lg border-2 border-green-300"
-              key={fileName}
-              data-document-id={fileName}
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold text-green-700">
-                  {fileName}
-                </h2>
-                <div>
-                  <button
-                    className="mt-0 bg-green-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-green-700 hover:scale-105"
-                    onClick={() => handleCheckAll(fileName)}
-                  >
-                    Chọn tất cả
-                  </button>
-                  <button
-                    className="mt-0 bg-blue-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-blue-700 hover:scale-105 ml-2"
-                    onClick={() => handleVerifyAll(fileName)} // New button for verifying all
-                  >
-                    Cập nhật dữ liệu
-                  </button>
-                  <button
-                    className="mt-0 bg-red-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-red-700 hover:scale-105 ml-2"
-                    onClick={() => handleRemoveDocument(fileName)} // Remove button
-                  >
-                    <FontAwesomeIcon icon={faTrash} aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-              {documentFAQs.map((faq) => (
-                <div
-                  className="flex justify-between items-center mb-4 p-2 bg-white rounded shadow border border-green-400 w-full"
-                  key={faq.faq_id}
-                >
-                  <FAQItem
-                    faq={faq}
-                    onVerifyChange={(faqId) =>
-                      handleVerifyChange(fileName, faqId)
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          );
-        })}
+      <div className="container mx-auto px-4">
+        {renderFAQsForFileId()}
       </div>
-
-      {isPopupVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-4 rounded shadow-lg border-2 border-green-600">
-            {" "}
-            {/* Added border with main color theme */}
-            <p className="text-lg text-green-700">
-              Bộ câu hỏi đã được cập nhật!
-            </p>
-            <div className="flex justify-center">
-              <button
-                onClick={closePopup}
-                className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isDocumentSelectorVisible && (
-        <DocumentSelector
-          documents={documents}
-          onImport={handleDocumentImport}
-          onClose={toggleDocumentSelector}
-          isVisible={isDocumentSelectorVisible}
-        />
-      )}
     </div>
   );
 };

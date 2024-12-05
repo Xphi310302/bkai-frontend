@@ -7,6 +7,7 @@ export default {
     theme: {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
       },
       extend: {
         borderRadius: {

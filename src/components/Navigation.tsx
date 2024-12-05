@@ -7,7 +7,6 @@ const Navigation: React.FC = () => {
 
   const navLinks = [
     { path: "/upload", label: <strong>Tải lên</strong> },
-    { path: "/faqs", label: <strong>Câu hỏi thường gặp</strong> },
     { path: "/dashboard", label: <strong>Bảng điều khiển</strong> },
   ];
 

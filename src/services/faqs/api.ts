@@ -2,8 +2,7 @@ import axiosInstance from '../axios-config';
 import type { FAQ } from '../../components/FAQsPage/types';
 import { getFilesService } from "../files/fileReadService";
 import { UploadedFile } from '@/components/UploadPage/types/files';
-
-// const BASE_URL = import.meta.env.VITE_BACKEND_URL; 
+ 
 
 export async function getFAQsByDocument(fileName: string): Promise<FAQ[]> {
   try {
@@ -32,6 +31,38 @@ export async function getFAQsByDocument(fileName: string): Promise<FAQ[]> {
   }
 }
 
+export async function getFAQsByFileId(fileId: string): Promise<FAQ[]> {
+
+  try {
+    const response = await axiosInstance.get(`/api/v1/get-faqs-by-file-id/${fileId}`);
+
+    if (!response.data) {
+      throw new Error("No data received from API");
+    }
+
+    const data = response.data;
+
+    if (!Array.isArray(data)) {
+      console.error("Invalid response structure:", data);
+      throw new Error("Invalid response structure: Expected an array");
+    }
+
+    const mappedData = data.map((item: { faq_id: string; question: string; answer: string; file_id: string; verify: boolean }) => ({
+      question: item.question,
+      answer: item.answer,
+      file_id: item.file_id,
+      verify: item.verify,
+      faq_id: item.faq_id,
+    }));
+
+    console.log("Mapped FAQs data:", mappedData); // Debug log
+    return mappedData;
+  } catch (error) {
+    console.error("Error in getFAQsByFileId:", error);
+    throw error;
+  }
+}
+
 export const getDocuments = async (): Promise<UploadedFile[]> => {
   try {
     return await getFilesService();
@@ -40,16 +71,3 @@ export const getDocuments = async (): Promise<UploadedFile[]> => {
     throw new Error("Failed to fetch documents");
   }
 };
-
-// export async function updateFAQ(faq: FAQ): Promise<FAQ> {
-//   try {
-//     const response = await axiosInstance.put(`/faqs/${faq.id}`, {
-//       question: faq.question,
-//       answer: faq.answer,
-//       documentId: faq.file_id
-//     });
-//     return response.data;
-//   } catch (error) {
-//     throw new Error(`Failed to update FAQ: ${error instanceof Error ? error.message : 'Unknown error'}`);
-//   }
-// }

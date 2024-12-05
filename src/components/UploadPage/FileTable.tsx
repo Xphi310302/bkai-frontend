@@ -127,7 +127,8 @@ const FileTable: React.FC<FileTableProps> = ({
             files.map((file) => (
               <tr 
                 key={file.fileId} 
-                className="transition-colors duration-150 ease-in-out hover:bg-gray-50"
+                className="transition-colors duration-150 ease-in-out hover:bg-gray-50 cursor-pointer"
+                onDoubleClick={() => window.open(`/faqs?fileId=${file.fileId}`, '_blank')}
               >
                 <td className="py-4 px-6 whitespace-nowrap overflow-hidden text-ellipsis w-1/2">
                   <div className="flex items-center space-x-3">
