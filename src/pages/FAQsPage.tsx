@@ -3,8 +3,7 @@ import React, { useEffect, useState } from "react";
 import { getFAQsByFileId } from "../services/faqs/api";
 import type { FAQ } from "../components/FAQsPage/types"; 
 import FAQItem from "../components/FAQsPage/FAQItem"; 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+
 import { getFileByIdService } from "../services/files/fileReadService";
 
 const DocumentComponent: React.FC<{ 
@@ -12,14 +11,12 @@ const DocumentComponent: React.FC<{
   faqs: FAQ[]; 
   onCheckAll: () => void; 
   onVerifyAll: () => void; 
-  onRemove: () => void; 
   onVerifyChange: (faqId: string) => void; 
 }> = ({ 
   fileName, 
   faqs, 
   onCheckAll, 
   onVerifyAll, 
-  onRemove, 
   onVerifyChange 
 }) => (
   <div
@@ -43,12 +40,6 @@ const DocumentComponent: React.FC<{
           onClick={onVerifyAll}
         >
           Cập nhật dữ liệu
-        </button>
-        <button
-          className="mt-0 bg-red-600 text-white px-4 py-2 rounded transition duration-200 ease-in-out transform hover:bg-red-700 hover:scale-105 ml-2"
-          onClick={onRemove}
-        >
-          <FontAwesomeIcon icon={faTrash} aria-hidden="true" />
         </button>
       </div>
     </div>
@@ -158,13 +149,6 @@ const FAQsPage: React.FC = () => {
     });
   };
 
-  const handleRemoveDocument = (fileName: string) => {
-    setFaqs((prev) => {
-      const updatedFAQs = new Map(prev);
-      updatedFAQs.delete(fileName); // Remove the document from the state
-      return updatedFAQs;
-    });
-  };
 
   const renderFAQsForFileId = () => {
     if (isLoading) {
@@ -188,7 +172,6 @@ const FAQsPage: React.FC = () => {
           faqs={documentFAQs}
           onCheckAll={() => handleCheckAll(fileId)}
           onVerifyAll={() => handleVerifyAll(fileId)}
-          onRemove={() => handleRemoveDocument(fileId)}
           onVerifyChange={(faqId) => handleVerifyChange(fileId, faqId)}
         />
       </div>
