@@ -1,69 +1,149 @@
-import React, { useState } from "react";
-import type { FAQ } from "./types"; // Adjust the import path as necessary
+import React, { useState, useEffect } from "react";
+import type { FAQ } from "./types";
 
 type FAQItemProps = {
   faq: FAQ;
-  onVerifyChange: (faqId: string) => void; // Add onVerifyChange prop
+  onVerifyChange: (faqId: string) => void;
 };
 
 const FAQItem: React.FC<FAQItemProps> = ({ faq, onVerifyChange }) => {
-  const [isAnswerVisible, setAnswerVisible] = useState(true);
   const [isEditing, setEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(faq.answer);
+  const [editedQuestion, setEditedQuestion] = useState(faq.question);
+  const [isExpanded, setExpanded] = useState(true);
+  const [isSaving, setSaving] = useState(false);
 
-  const toggleAnswerVisibility = () => {
-    setAnswerVisible((prev) => !prev);
+  useEffect(() => {
+    setEditedAnswer(faq.answer);
+    setEditedQuestion(faq.question);
+  }, [faq]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Here you would typically make an API call to save the changes
+      faq.answer = editedAnswer;
+      faq.question = editedQuestion;
+      setEditing(false);
+    } catch (error) {
+      console.error('Error saving FAQ:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const toggleEditMode = () => {
-    if (isEditing) {
-      // Save the edited answer when exiting edit mode
-      faq.answer = editedAnswer; // Update the original FAQ object
-    }
-    setEditing((prev) => !prev);
+  const handleCancel = () => {
+    setEditedAnswer(faq.answer);
+    setEditedQuestion(faq.question);
+    setEditing(false);
   };
 
   return (
-    <div className="flex justify-between items-start w-full p-4 ">
-      {/* Container for FAQ item */}
-      <div className="flex flex-col w-full">
-        {/* Wrapper for question and answer */}
-        <span className="font-medium text-green-800">{faq.question}</span>
-        {isAnswerVisible && (
-          <div className="mt-2">
+    <div className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${isExpanded ? 'p-8' : 'p-6'} w-full mx-auto border border-gray-300`}>
+      <div className="flex flex-col space-y-4 w-full">
+        {/* Header Section */}
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
             {isEditing ? (
               <textarea
-                className="w-full p-2 border border-green-300 rounded"
-                value={editedAnswer}
-                onChange={(e) => setEditedAnswer(e.target.value)}
+                className="w-full p-4 border border-gray-400 rounded-lg focus:ring-4 focus:ring-gray-600 focus:border-transparent resize-none text-gray-900 font-semibold"
+                value={editedQuestion}
+                onChange={(e) => setEditedQuestion(e.target.value)}
+                rows={3}
+                placeholder="Enter question..."
               />
             ) : (
-              <p className="text-green-700 whitespace-pre-wrap">{faq.answer}</p> // Preserve newlines in the answer
+              <div 
+                className="text-xl font-semibold text-gray-900 cursor-pointer hover:text-gray-700 transition-colors border-b-2 border-gray-300 pb-2"
+                onClick={() => setExpanded(!isExpanded)}
+              >
+                {faq.question}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center space-x-3 ml-5">
+            <button
+              className={`p-3 rounded-full transition-colors ${
+                faq.verify 
+                  ? 'bg-green-500 text-white hover:bg-green-600' 
+                  : 'bg-red-500 text-white hover:bg-red-600'
+              }`}
+              onClick={() => onVerifyChange(faq.faq_id)}
+              title={faq.verify ? "Xác nhận" : "Không xác nhận"}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </button>
+            <button
+              className={`p-3 rounded-full transition-colors ${
+                isEditing 
+                  ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              onClick={() => !isSaving && (isEditing ? handleSave() : setEditing(true))}
+              disabled={isSaving}
+            >
+              {isEditing ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Answer Section */}
+        {isExpanded && (
+          <div className="mt-4">
+            {isEditing ? (
+              <div className="space-y-6">
+                <textarea
+                  className="w-full p-5 border border-gray-400 rounded-lg focus:ring-4 focus:ring-gray-600 focus:border-transparent min-h-[200px] text-gray-800"
+                  value={editedAnswer}
+                  onChange={(e) => setEditedAnswer(e.target.value)}
+                  placeholder="Enter answer..."
+                />
+                <div className="flex justify-end space-x-3">
+                  <button
+                    className="px-5 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    className={`px-5 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors flex items-center space-x-3 ${
+                      isSaving ? 'opacity-75 cursor-not-allowed' : ''
+                    }`}
+                    onClick={handleSave}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? (
+                      <>
+                        <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Đang lưu...</span>
+                      </>
+                    ) : (
+                      'Lưu thay đổi'
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-800 whitespace-pre-wrap pl-5 border-l-4 border-gray-400">
+                {faq.answer}
+              </div>
             )}
           </div>
         )}
-      </div>
-      <div className="flex items-center space-x-2 ml-4">
-        {/* Align buttons to the right */}
-        <button
-          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-          onClick={toggleAnswerVisibility}
-        >
-          {isAnswerVisible ? "-" : "+"}
-        </button>
-        <button
-          className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600 whitespace-nowrap"
-          onClick={toggleEditMode}
-        >
-          {isEditing ? "Lưu" : "Chỉnh sửa"}
-        </button>
-        <input
-          type="checkbox"
-          checked={faq.verify}
-          onChange={() => onVerifyChange(faq.faq_id)} // Call onVerifyChange
-          className="ml-2 w-4 h-4" // Increased size
-        />
-        <label className="text-green-800 ml-1"></label>
       </div>
     </div>
   );

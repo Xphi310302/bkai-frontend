@@ -18,7 +18,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div>
-      {location.pathname !== "/" && location.pathname !== "/login" && (
+      {location.pathname !== "/" && location.pathname !== "/login" && location.pathname !== "/faqs" && (
         <Navigation />
       )}
       <Routes>
