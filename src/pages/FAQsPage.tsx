@@ -4,6 +4,7 @@ import { getFAQsByFileId } from "../services/faqs/api";
 import type { FAQ } from "../components/FAQsPage/types"; 
 import FAQItem from "../components/FAQsPage/FAQItem"; 
 import { getFileByIdService } from "../services/files/fileReadService";
+import { v4 as uuidv4 } from 'uuid';
 
 const DocumentComponent: React.FC<{ 
   fileName: string; 
@@ -72,7 +73,7 @@ const DocumentComponent: React.FC<{
         onClick={onAddFAQ}
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6">
-          <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+          <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 01-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
         </svg>
       </button>
     </div>
@@ -177,12 +178,14 @@ const FAQsPage: React.FC = () => {
     });
   };
 
-  const handleAddFAQ = (fileName: string) => {
-    const newFAQ = { faq_id: Date.now().toString(), question: '', answer: '', verify: false };
+
+  const handleAddFAQ = () => {
+    if (!fileId) return; 
+    const newFAQ = { faq_id: uuidv4(), file_id: fileId, question: '', answer: '', verify: false };
     setFaqs((prev) => {
       const updatedFAQs = new Map(prev);
-      const documentFAQs = updatedFAQs.get(fileName) || [];
-      updatedFAQs.set(fileName, [...documentFAQs, newFAQ]);
+      const documentFAQs = updatedFAQs.get(fileId) || [];
+      updatedFAQs.set(fileId, [...documentFAQs, newFAQ]);
       return updatedFAQs;
     });
   };
@@ -239,7 +242,7 @@ const FAQsPage: React.FC = () => {
         onCheckAll={() => handleCheckAll(fileId)}
         onVerifyAll={() => handleVerifyAll(fileId)}
         onVerifyChange={(faqId) => handleVerifyChange(fileId, faqId)}
-        onAddFAQ={() => handleAddFAQ(fileId)}
+        onAddFAQ={() => handleAddFAQ()}
       />
     );
   };
