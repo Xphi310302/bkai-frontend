@@ -19,30 +19,10 @@ const DocumentComponent: React.FC<{
   onRemoveFAQ,
   onAddFAQ
 }) => (
-  <div className="bg-white rounded-xl shadow-lg w-full border border-gray-300 relative">
-    <div className="sticky top-0 z-10 bg-white border-b border-gray-300 px-6 py-4">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-gray-900">
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800">
-            {fileName}
-          </h2>
-        </div>
-        <div className="flex space-x-3">
-          <button
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transform hover:scale-105 transition duration-200 flex items-center space-x-2"
-            onClick={onUpdateAll}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Cập nhật dữ liệu</span>
-          </button>
-        </div>
+  <div className="bg-white rounded-lg shadow-sm mb-6">
+    <div className="sticky top-0 bg-white p-4 border-b z-10 rounded-t-lg">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-800">{fileName}</h2>
       </div>
     </div>
     <div className="p-6 space-y-4">
@@ -57,16 +37,16 @@ const DocumentComponent: React.FC<{
           />
         </div>
       ))}
-    </div>
-    <div className="sticky bottom-6 right-6 flex justify-end px-6">
-      <button
-        className="p-3 rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md transition-all duration-200 flex items-center justify-center w-12 h-12"
-        onClick={onAddFAQ}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6">
-          <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 01-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-        </svg>
-      </button>
+      <div className="flex justify-end mt-4">
+        <button
+          className="p-3 rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md transition-all duration-200 flex items-center justify-center w-12 h-12"
+          onClick={onAddFAQ}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6">
+            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 01-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 );
@@ -194,13 +174,15 @@ const FAQsPage: React.FC = () => {
     const documentFAQs = faqs.get(fileId) || [];
     
     return (
-      <DocumentComponent
-        fileName={fileName}
-        faqs={documentFAQs}
-        onUpdateAll={handleUpdateAll}
-        onRemoveFAQ={handleRemoveFAQ}
-        onAddFAQ={() => handleAddFAQ()}
-      />
+      <div>
+        <DocumentComponent
+          fileName={fileName}
+          faqs={documentFAQs}
+          onUpdateAll={handleUpdateAll}
+          onRemoveFAQ={handleRemoveFAQ}
+          onAddFAQ={() => handleAddFAQ()}
+        />
+      </div>
     );
   };
 
