@@ -9,52 +9,43 @@ import { v4 as uuidv4 } from 'uuid';
 const DocumentComponent: React.FC<{ 
   fileName: string; 
   faqs: FAQ[]; 
-  onCheckAll: () => void; 
   onUpdateAll: () => void;
   onRemoveFAQ: (faqId: string) => void;
   onAddFAQ: () => void;
 }> = ({ 
   fileName, 
   faqs, 
-  onCheckAll,
   onUpdateAll,
   onRemoveFAQ,
   onAddFAQ
 }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6 w-full border border-gray-300">
-    <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 text-gray-900">
-      <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+  <div className="bg-white rounded-xl shadow-lg w-full border border-gray-300 relative">
+    <div className="sticky top-0 z-10 bg-white border-b border-gray-300 px-6 py-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-gray-900">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800">
+            {fileName}
+          </h2>
         </div>
-        <h2 className="text-2xl font-bold text-gray-800">
-          {fileName}
-        </h2>
-      </div>
-      <div className="flex space-x-3">
-        <button
-          className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transform hover:scale-105 transition duration-200 flex items-center space-x-2"
-          onClick={onCheckAll}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-          </svg>
-          <span>Chọn tất cả</span>
-        </button>
-        <button
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transform hover:scale-105 transition duration-200 flex items-center space-x-2"
-          onClick={onUpdateAll}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span>Cập nhật dữ liệu</span>
-        </button>
+        <div className="flex space-x-3">
+          <button
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transform hover:scale-105 transition duration-200 flex items-center space-x-2"
+            onClick={onUpdateAll}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Cập nhật dữ liệu</span>
+          </button>
+        </div>
       </div>
     </div>
-    <div className="space-y-4">
+    <div className="p-6 space-y-4">
       {faqs.map((faq) => (
         <div
           key={faq.faq_id}
@@ -67,7 +58,7 @@ const DocumentComponent: React.FC<{
         </div>
       ))}
     </div>
-    <div className="flex justify-end mt-4">
+    <div className="sticky bottom-6 right-6 flex justify-end px-6">
       <button
         className="p-3 rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md transition-all duration-200 flex items-center justify-center w-12 h-12"
         onClick={onAddFAQ}
@@ -125,24 +116,6 @@ const FAQsPage: React.FC = () => {
       document.title = 'FAQs';
     };
   }, [fileId]);
-
-  const handleCheckAll = (fileName: string) => {
-    setFaqs((prev) => {
-      const updatedFAQs = new Map(prev);
-      const documentFAQs = updatedFAQs.get(fileName) || [];
-      const allVerified = documentFAQs.every((faq) => faq.verify);
-      
-      updatedFAQs.set(
-        fileName,
-        documentFAQs.map((faq) => ({
-          ...faq,
-          verify: !allVerified,
-        }))
-      );
-      
-      return updatedFAQs;
-    });
-  };
 
   const handleUpdateAll = async () => {
     if (!fileId) return;
@@ -224,7 +197,6 @@ const FAQsPage: React.FC = () => {
       <DocumentComponent
         fileName={fileName}
         faqs={documentFAQs}
-        onCheckAll={() => handleCheckAll(fileId)}
         onUpdateAll={handleUpdateAll}
         onRemoveFAQ={handleRemoveFAQ}
         onAddFAQ={() => handleAddFAQ()}
