@@ -15,7 +15,6 @@ const DocumentComponent: React.FC<{
 }> = ({ 
   fileName, 
   faqs, 
-  onUpdateAll,
   onRemoveFAQ,
   onAddFAQ
 }) => (
