@@ -10,15 +10,15 @@ const DocumentComponent: React.FC<{
   fileName: string; 
   faqs: FAQ[]; 
   onCheckAll: () => void; 
-  onVerifyAll: () => void; 
-  onVerifyChange: (faqId: string) => void; 
+  onUpdateAll: () => void;
+  onRemoveFAQ: (faqId: string) => void;
   onAddFAQ: () => void;
 }> = ({ 
   fileName, 
   faqs, 
-  onCheckAll, 
-  onVerifyAll, 
-  onVerifyChange,
+  onCheckAll,
+  onUpdateAll,
+  onRemoveFAQ,
   onAddFAQ
 }) => (
   <div className="bg-white rounded-xl shadow-lg p-6 w-full border border-gray-300">
@@ -45,12 +45,12 @@ const DocumentComponent: React.FC<{
         </button>
         <button
           className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transform hover:scale-105 transition duration-200 flex items-center space-x-2"
-          onClick={onVerifyAll}
+          onClick={onUpdateAll}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          <span>Xác nhận tất cả</span>
+          <span>Cập nhật dữ liệu</span>
         </button>
       </div>
     </div>
@@ -62,7 +62,7 @@ const DocumentComponent: React.FC<{
         >
           <FAQItem
             faq={faq}
-            onVerifyChange={onVerifyChange}
+            onRemove={onRemoveFAQ}
           />
         </div>
       ))}
@@ -144,40 +144,25 @@ const FAQsPage: React.FC = () => {
     });
   };
 
-  const handleVerifyAll = (fileName: string) => {
+  const handleUpdateAll = async () => {
+    if (!fileId) return;
+    // TODO: Implement the API call to update all FAQs
+    console.log("Updating all FAQs for file:", fileId);
+  };
+
+  const handleRemoveFAQ = (faqId: string) => {
+    if (!fileId) return;
+    
     setFaqs((prev) => {
       const updatedFAQs = new Map(prev);
-      const documentFAQs = updatedFAQs.get(fileName) || [];
-      
+      const documentFAQs = updatedFAQs.get(fileId) || [];
       updatedFAQs.set(
-        fileName,
-        documentFAQs.map((faq) => ({
-          ...faq,
-          verify: true,
-        }))
+        fileId,
+        documentFAQs.filter((faq) => faq.faq_id !== faqId)
       );
-      
       return updatedFAQs;
     });
   };
-
-  const handleVerifyChange = (fileName: string, faqId: string) => {
-    setFaqs((prev) => {
-      const updatedFAQs = new Map(prev);
-      const documentFAQs = updatedFAQs.get(fileName) || [];
-      
-      updatedFAQs.set(
-        fileName,
-        documentFAQs.map((faq) => ({
-          ...faq,
-          verify: faq.faq_id === faqId ? !faq.verify : faq.verify,
-        }))
-      );
-      
-      return updatedFAQs;
-    });
-  };
-
 
   const handleAddFAQ = () => {
     if (!fileId) return; 
@@ -240,8 +225,8 @@ const FAQsPage: React.FC = () => {
         fileName={fileName}
         faqs={documentFAQs}
         onCheckAll={() => handleCheckAll(fileId)}
-        onVerifyAll={() => handleVerifyAll(fileId)}
-        onVerifyChange={(faqId) => handleVerifyChange(fileId, faqId)}
+        onUpdateAll={handleUpdateAll}
+        onRemoveFAQ={handleRemoveFAQ}
         onAddFAQ={() => handleAddFAQ()}
       />
     );
