@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import FileUploader from "../components/UploadPage/FileUploader";
 import FileTable from "../components/UploadPage/FileTable";
 import Pagination from "../components/UploadPage/Pagination";
 import { getFilesService } from "../services/files/fileReadService";
 import { deleteFileService } from "../services/files/fileDeleteService";
+import { getAllFAQsService } from "../services/faqs/exportService";
 import { UploadedFile } from "../components/UploadPage/types/files";
+import * as XLSX from 'xlsx';
 
 type SortField = 'fileName' | 'dateModified';
 type SortDirection = 'asc' | 'desc';
@@ -18,7 +20,7 @@ const UploadPage: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const filesPerPage = 10;
 
-  const sortFiles = (files: UploadedFile[]): UploadedFile[] => {
+  const sortFiles = useCallback((files: UploadedFile[]): UploadedFile[] => {
     return [...files].sort((a, b) => {
       let comparison = 0;
       if (sortField === 'fileName') {
@@ -34,7 +36,7 @@ const UploadPage: React.FC = () => {
       
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  };
+  }, [sortField, sortDirection]);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -72,7 +74,7 @@ const UploadPage: React.FC = () => {
     const startIndex = (currentPage - 1) * filesPerPage;
     const endIndex = startIndex + filesPerPage;
     setCurrentFiles(sortedFiles.slice(startIndex, endIndex));
-  }, [uploadedFiles, searchQuery, currentPage, sortField, sortDirection]);
+  }, [uploadedFiles, searchQuery, currentPage, sortField, sortDirection, sortFiles]);
 
   const onDeleteFile = async (fileId: string) => {
     try {
@@ -96,10 +98,59 @@ const UploadPage: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-green-500"
         />
-        <FileUploader 
-          onUploadComplete={fetchFiles} 
-          existingFiles={uploadedFiles} 
-        />
+        <div className="flex items-center space-x-3 ml-4">
+          <FileUploader 
+            onUploadComplete={fetchFiles} 
+            existingFiles={uploadedFiles} 
+          />
+          <button
+            onClick={async () => {
+              try {
+                // Get all FAQs
+                const allFAQs = await getAllFAQsService();
+                
+                // Create a map of fileId to fileName
+                const fileIdToName = new Map(
+                  uploadedFiles.map(file => [file.fileId, file.fileName])
+                );
+                
+                // Transform data for Excel
+                const excelData = allFAQs.map(faq => ({
+                  'Tên file': fileIdToName.get(faq.file_id) || 'Unknown',
+                  'Câu hỏi': faq.question,
+                  'Câu trả lời': faq.answer
+                }));
+
+                // Create workbook and worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(excelData);
+
+                // Set column widths
+                const colWidths = [
+                  { wch: 30 }, // Tên file
+                  { wch: 50 }, // Câu hỏi
+                  { wch: 70 }  // Câu trả lời
+                ];
+                ws['!cols'] = colWidths;
+
+                // Add worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, "FAQs");
+
+                // Generate Excel file with current date
+                const date = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `FAQs_Export_${date}.xlsx`);
+              } catch (error) {
+                console.error("Error exporting FAQs:", error);
+              }
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-200 flex items-center space-x-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Xuất dữ liệu FAQ</span>
+          </button>
+        </div>
       </div>
       <FileTable 
         files={currentFiles} 
