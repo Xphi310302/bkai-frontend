@@ -18,8 +18,8 @@ interface ChatResponse {
 
 export async function sendMessage(message: string): Promise<string> {
   try {
-    // Initialize a new conversation ID with UUID each time the page is reloaded
-    const conversationId = uuidv4(); // Generate a new UUID
+    // Use the same conversation ID for the same tab
+    const conversationId = localStorage.getItem('conversation_id') || uuidv4();
     localStorage.setItem('conversation_id', conversationId);
 
     console.log('Sending message:', message, 'with conversation ID:', conversationId);
@@ -30,11 +30,6 @@ export async function sendMessage(message: string): Promise<string> {
         message: message,
       }
     );
-
-    // Store the conversation ID for future messages
-    if (response.data.conversation_id) {
-      localStorage.setItem('conversation_id', response.data.conversation_id);
-    }
 
     return response.data.response;
   } catch (error) {
