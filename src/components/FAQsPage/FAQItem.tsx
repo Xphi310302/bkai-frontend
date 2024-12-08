@@ -39,14 +39,14 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove }) => {
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${isExpanded ? 'p-8' : 'p-6'} w-full mx-auto border border-gray-300`}>
+    <div className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${isExpanded ? 'p-8' : 'p-6'} w-full mx-auto border border-green-300`}>
       <div className="flex flex-col space-y-4 w-full">
         {/* Header Section */}
         <div className="flex justify-between items-start">
           <div className="flex-1">
             {isEditing ? (
               <textarea
-                className="w-full p-4 border border-gray-400 rounded-lg focus:ring-4 focus:ring-gray-600 focus:border-transparent resize-none text-gray-900 font-semibold"
+                className="w-full p-4 border border-green-400 rounded-lg focus:ring-4 focus:ring-green-600 focus:border-transparent resize-none text-green-900 font-semibold"
                 value={editedQuestion}
                 onChange={(e) => setEditedQuestion(e.target.value)}
                 rows={3}
@@ -54,7 +54,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove }) => {
               />
             ) : (
               <div 
-                className="text-xl font-semibold text-gray-900 cursor-pointer hover:text-gray-700 transition-colors border-b-2 border-gray-300 pb-2"
+                className="text-xl font-semibold text-green-900 cursor-pointer hover:text-green-700 transition-colors border-b-2 border-green-300 pb-2"
                 onClick={() => setExpanded(!isExpanded)}
               >
                 {faq.question}
@@ -65,8 +65,8 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove }) => {
             <button
               className={`p-2 rounded-full transition-colors ${
                 isEditing 
-                  ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-green-500 text-white hover:bg-green-600' 
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
               }`}
               onClick={() => !isSaving && (isEditing ? handleSave() : setEditing(true))}
               disabled={isSaving}
@@ -100,14 +100,14 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove }) => {
             {isEditing ? (
               <div className="space-y-6">
                 <textarea
-                  className="w-full p-5 border border-gray-400 rounded-lg focus:ring-4 focus:ring-gray-600 focus:border-transparent min-h-[200px] text-gray-800"
+                  className="w-full p-5 border border-green-400 rounded-lg focus:ring-4 focus:ring-green-600 focus:border-transparent min-h-[200px] text-green-800"
                   value={editedAnswer}
                   onChange={(e) => setEditedAnswer(e.target.value)}
                   placeholder="Enter answer..."
                 />
                 <div className="flex justify-end space-x-3">
                   <button
-                    className="px-5 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    className="px-5 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
                     onClick={handleCancel}
                     disabled={isSaving}
                   >
@@ -135,7 +135,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove }) => {
                 </div>
               </div>
             ) : (
-              <div className="text-gray-800 whitespace-pre-wrap pl-5 border-l-4 border-gray-400">
+              <div className="text-green-800 whitespace-pre-wrap pl-5 border-l-4 border-green-400">
                 {faq.answer}
               </div>
             )}

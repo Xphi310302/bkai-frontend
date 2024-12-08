@@ -15,20 +15,32 @@ const DocumentComponent: React.FC<{
 }> = ({ 
   fileName, 
   faqs, 
+  onUpdateAll,
   onRemoveFAQ,
   onAddFAQ
 }) => (
-  <div className="bg-white rounded-lg shadow-sm mb-6">
-    <div className="sticky top-0 bg-white p-4 border-b z-10 rounded-t-lg">
+  <div className="bg-white rounded-lg shadow-sm mb-6 w-full max-w-full mx-auto border border-green-300">
+    <div className="sticky top-0 bg-white p-6 border border-green-300 z-50 ">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">{fileName}</h2>
+        <div className="flex items-center space-x-3">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h2 className="text-xl font-semibold text-green-800">{fileName}</h2>
+        </div>
+        <button 
+          onClick={onUpdateAll} 
+          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+        >
+          Cập nhật dữ liệu
+        </button>
       </div>
     </div>
     <div className="p-6 space-y-4">
       {faqs.map((faq) => (
         <div
           key={faq.faq_id}
-          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+          className="bg-green-50 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
         >
           <FAQItem
             faq={faq}
@@ -127,74 +139,36 @@ const FAQsPage: React.FC = () => {
     });
   };
 
-  const renderFAQsForFileId = () => {
-    if (isLoading) {
-      return (
-        <div className="flex items-center justify-center min-h-[200px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
-        </div>
-      );
-    }
-
-    if (error) {
-      return (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (!fileId || !faqs.has(fileId)) {
-      return (
-        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-yellow-700">No FAQs found for this file.</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    const documentFAQs = faqs.get(fileId) || [];
-    
-    return (
-      <div>
-        <DocumentComponent
-          fileName={fileName}
-          faqs={documentFAQs}
-          onUpdateAll={handleUpdateAll}
-          onRemoveFAQ={handleRemoveFAQ}
-          onAddFAQ={() => handleAddFAQ()}
-        />
-      </div>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-200">
-      <div className="container mx-auto px-6 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-green-800 mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-200 py-8">
+      <div className="container mx-auto px-4 max-w-screen-2xl relative">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-bold text-green-800 mb-3">
             CÂU HỎI THƯỜNG GẶP
           </h1>
-          <div className="h-1 w-32 bg-green-600 mx-auto rounded-full"></div>
+          <p className="text-xl text-green-600">
+            {`Các câu hỏi thường gặp về `}
+            <strong>{fileName.replace('.pdf', '')}</strong>
+          </p>
         </div>
-        {renderFAQsForFileId()}
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 text-xl">{error}</div>
+        ) : (
+          fileId && (
+            <DocumentComponent
+              fileName={fileName}
+              faqs={faqs.get(fileId) || []}
+              onUpdateAll={handleUpdateAll}
+              onRemoveFAQ={handleRemoveFAQ}
+              onAddFAQ={handleAddFAQ}
+            />
+          )
+        )}
       </div>
     </div>
   );
