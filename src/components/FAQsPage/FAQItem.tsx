@@ -27,7 +27,15 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange }) => {
         ...faq,
         question: editedQuestion,
         answer: editedAnswer,
-        modified: new Date().toISOString(),
+        modified: new Date().toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }),
       };
       
       // Here you would typically make an API call to save the changes
