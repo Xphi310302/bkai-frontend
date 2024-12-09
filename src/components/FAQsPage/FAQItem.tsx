@@ -5,52 +5,45 @@ type FAQItemProps = {
   faq: FAQ;
   onRemove: (faqId: string) => void;
   onVerifyChange?: (faqId: string, isVerified: boolean) => void;
+  setShowModal: (show: boolean) => void;
+  setModalTitle: (title: string) => void;
+  setModalMessage: (message: string) => void;
+  setModalAction: (action: string) => void;
 };
 
-const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange }) => {
+const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setShowModal, setModalTitle, setModalMessage, setModalAction }) => {
   const [isEditing, setEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(faq.answer);
   const [editedQuestion, setEditedQuestion] = useState(faq.question);
   const [isExpanded, setExpanded] = useState(true);
-  const [isSaving, setSaving] = useState(false);
 
   useEffect(() => {
     setEditedAnswer(faq.answer);
     setEditedQuestion(faq.question);
   }, [faq]);
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Update with new schema
-      const updatedFAQ: FAQ = {
-        ...faq,
-        question: editedQuestion,
-        answer: editedAnswer,
-        modified: new Date().toLocaleString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        }),
-      };
-      
-      // Here you would typically make an API call to save the changes
-      setEditing(false);
-    } catch (error) {
-      console.error('Error saving FAQ:', error);
-    } finally {
-      setSaving(false);
+  useEffect(() => {
+    if (isEditing) {
+      faq.question = editedQuestion;
+      faq.answer = editedAnswer;
     }
+  }, [editedQuestion, editedAnswer, isEditing, faq]);
+
+  const handleDelete = () => {
+    if (faq.is_source) {
+      setShowModal(true);
+      setModalTitle("Cảnh báo");
+      setModalMessage("Bạn nên hủy xác nhận trước khi xóa");
+      setModalAction("warning");
+      return;
+    }
+    onRemove(faq.faq_id);
   };
 
-  const handleCancel = () => {
-    setEditedAnswer(faq.answer);
-    setEditedQuestion(faq.question);
-    setEditing(false);
+  const handleVerifyFAQ = () => {
+    if (onVerifyChange) {
+      onVerifyChange(faq.faq_id, !faq.is_source);
+    }
   };
 
   return (
@@ -84,20 +77,12 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange }) => {
                   ? 'bg-green-500 text-white hover:bg-green-600' 
                   : 'bg-green-100 text-green-700 hover:bg-green-200'
               }`}
-              onClick={() => !isSaving && (isEditing ? handleSave() : setEditing(true))}
-              disabled={isSaving}
+              onClick={() => setEditing(!isEditing)}
             >
               {isEditing ? (
-                isSaving ? (
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                )
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -106,7 +91,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange }) => {
             </button>
             <button
               className="p-2 rounded-full transition-colors hover:bg-red-100"
-              onClick={() => onRemove(faq.faq_id)}
+              onClick={handleDelete}
               title="Xóa FAQ"
             >
               <svg
@@ -122,38 +107,40 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange }) => {
                 />
               </svg>
             </button>
-            <div className="flex items-center">
-              <label className="inline-flex items-center cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={faq.is_source}
-                  onChange={(e) => onVerifyChange?.(faq.faq_id, e.target.checked)}
-                  className="hidden"
-                />
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 
-                  ${faq.is_source 
-                    ? 'bg-blue-600 border-blue-600 group-hover:bg-blue-700 group-hover:border-blue-700' 
-                    : 'border-gray-300 group-hover:border-blue-400'}`}
-                >
-                  {faq.is_source && (
-                    <svg 
-                      className="w-4 h-4 text-white" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth="3" 
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </div>
-                <span className="ml-2 text-xs text-gray-500 group-hover:text-blue-600">Xác nhận</span>
-              </label>
-            </div>
+            {!isEditing && (
+              <div className="flex items-center">
+                <label className="inline-flex items-center cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={faq.is_source}
+                    onChange={handleVerifyFAQ}
+                    className="hidden"
+                  />
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 
+                    ${faq.is_source 
+                      ? 'bg-blue-600 border-blue-600 group-hover:bg-blue-700 group-hover:border-blue-700' 
+                      : 'border-gray-300 group-hover:border-blue-400'}`}
+                  >
+                    {faq.is_source && (
+                      <svg 
+                        className="w-4 h-4 text-white" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth="3" 
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="ml-2 text-xs text-gray-500 group-hover:text-blue-600">Xác nhận</span>
+                </label>
+              </div>
+            )}
           </div>
         </div>
 
@@ -168,34 +155,6 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange }) => {
                   onChange={(e) => setEditedAnswer(e.target.value)}
                   placeholder="Enter answer..."
                 />
-                <div className="flex justify-end space-x-3">
-                  <button
-                    className="px-5 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                    onClick={handleCancel}
-                    disabled={isSaving}
-                  >
-                    Hủy bỏ
-                  </button>
-                  <button
-                    className={`px-5 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors flex items-center space-x-3 ${
-                      isSaving ? 'opacity-75 cursor-not-allowed' : ''
-                    }`}
-                    onClick={handleSave}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Đang lưu...</span>
-                      </>
-                    ) : (
-                      'Lưu thay đổi'
-                    )}
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="flex">

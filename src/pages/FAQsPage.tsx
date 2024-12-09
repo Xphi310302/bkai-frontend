@@ -1,6 +1,6 @@
 // src/pages/FAQsPage.tsx
 import React, { useEffect, useState } from "react";
-import { getFAQsByFileId, modifyFAQ, insertFAQ } from "../services/faqs/api";
+import { getFAQsByFileId, modifyFAQ, insertFAQ, deleteFAQ } from "../services/faqs/api";
 import type { FAQ } from "../components/FAQsPage/types"; 
 import FAQItem from "../components/FAQsPage/FAQItem"; 
 import { getFileByIdService } from "../services/files/fileReadService";
@@ -25,6 +25,10 @@ const DocumentComponent: React.FC<{
   onSelectAll
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalAction, setModalAction] = useState("");
 
   return (
     <div className="bg-white rounded-lg shadow-sm mb-6 w-full max-w-full mx-auto border border-green-300">
@@ -75,6 +79,10 @@ const DocumentComponent: React.FC<{
               faq={faq}
               onRemove={onRemoveFAQ}
               onVerifyChange={onVerifyFAQ}
+              setShowModal={setShowModal}
+              setModalTitle={setModalTitle}
+              setModalMessage={setModalMessage}
+              setModalAction={setModalAction}
             />
           </div>
         ))}
@@ -94,10 +102,20 @@ const DocumentComponent: React.FC<{
         isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
         onConfirm={onUpdateAll}
+        onCancel={() => setShowConfirmModal(false)}
         title="Xác nhận cập nhật"
-        message="Bạn có chắc chắn muốn cập nhật dữ liệu? Hành động này sẽ cập nhật tất cả các FAQ đã được xác nhận."
+        message="Bạn có chắc chắn muốn cập nhật tất cả các FAQ không?"
         confirmText="Cập nhật"
         cancelText="Hủy bỏ"
+        action="confirm"
+      />
+      <ConfirmationModal
+        isOpen={showModal}
+        title={modalTitle}
+        message={modalMessage}
+        onConfirm={() => setShowModal(false)}
+        onCancel={() => setShowModal(false)}
+        action={modalAction as 'warning' | 'confirm'}
       />
     </div>
   );
@@ -157,38 +175,90 @@ const FAQsPage: React.FC = () => {
     setLoading(true);
     
     try {
-      const currentFaqs = faqs.get(fileDetails.fileId) || [];
-      const updatePromises = currentFaqs.map(async (faq) => {
-        try {
-          if (existingFaqIds.has(faq.faq_id)) {
-            // Existing FAQ - call modify API
-            return await modifyFAQ(faq);
-          } else {
-            // New FAQ - call insert API
-            return await insertFAQ(faq);
-          }
-        } catch (error) {
-          console.error(`Error updating FAQ ${faq.faq_id}:`, error);
-          throw error;
-        }
+      const currentDate = new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
       });
 
-      const updatedFaqs = await Promise.all(updatePromises);
+      // Get all FAQs including deleted ones
+      const allFaqs = faqs.get(fileDetails.fileId + "_hidden") || faqs.get(fileDetails.fileId) || [];
       
-      // Update the existing FAQ IDs set with any newly inserted FAQs
+      // Step 1: Process all deletions first
+      const deletedFaqs = allFaqs.filter(faq => faq.deleted);
+      console.log("Processing deletions:", deletedFaqs.length, "FAQs to delete");
+      
+      for (const faq of deletedFaqs) {
+        try {
+          console.log("Deleting FAQ:", faq.faq_id);
+          await deleteFAQ(faq.faq_id);
+          console.log("Successfully deleted FAQ:", faq.faq_id);
+        } catch (error) {
+          console.error("Failed to delete FAQ:", faq.faq_id, error);
+          setError("Failed to delete FAQ. Please try again.");
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Step 2: Process remaining FAQs
+      const remainingFaqs = allFaqs.filter(faq => !faq.deleted);
+      
+      for (const faq of remainingFaqs) {
+        try {
+          if (!existingFaqIds.has(faq.faq_id)) {
+            // New FAQ - create it
+            console.log("Creating new FAQ:", faq.faq_id);
+            await insertFAQ(faq);
+          } else if (faq.is_source) {
+            // Existing and verified FAQ - update it
+            console.log("Modifying verified FAQ:", faq.faq_id);
+            const faqToUpdate = {
+              ...faq,
+              modified: currentDate // Update modified date for verified FAQs
+            };
+            await modifyFAQ(faqToUpdate);
+          }
+          // Skip FAQs that are neither new nor verified
+        } catch (error) {
+          console.error("Failed to process FAQ:", faq.faq_id, error);
+          setError("Failed to update FAQ. Please try again.");
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Step 3: Refresh the FAQ list from server
+      console.log("Refreshing FAQ list from server");
+      const updatedFaqs = await getFAQsByFileId(fileDetails.fileId);
       setExistingFaqIds(new Set(updatedFaqs.map(faq => faq.faq_id)));
-      
-      // Update the faqs state with the response from the server
       setFaqs(new Map().set(fileDetails.fileId, updatedFaqs));
       
-      // Show success message or notification
       console.log("All FAQs updated successfully");
     } catch (error) {
-      console.error("Error updating FAQs:", error);
+      console.error("Error in handleUpdateAll:", error);
       setError("Failed to update FAQs. Please try again later.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVerifyFAQ = (faqId: string, isVerified: boolean) => {
+    if (!fileDetails) return;
+    
+    setFaqs((prev) => {
+      const updatedFAQs = new Map(prev);
+      const documentFAQs = updatedFAQs.get(fileDetails.fileId) || [];
+      const updatedDocumentFAQs = documentFAQs.map(faq => 
+        faq.faq_id === faqId ? { ...faq, is_source: isVerified } : faq
+      );
+      updatedFAQs.set(fileDetails.fileId, updatedDocumentFAQs);
+      return updatedFAQs;
+    });
   };
 
   const handleRemoveFAQ = (faqId: string) => {
@@ -197,11 +267,29 @@ const FAQsPage: React.FC = () => {
     setFaqs((prev) => {
       const updatedFAQs = new Map(prev);
       const documentFAQs = updatedFAQs.get(fileDetails.fileId) || [];
-      updatedFAQs.set(
-        fileDetails.fileId,
-        documentFAQs.filter((faq) => faq.faq_id !== faqId)
-      );
-      return updatedFAQs;
+      const faqToDelete = documentFAQs.find(faq => faq.faq_id === faqId);
+      
+      if (faqToDelete) {
+        if (faqToDelete.is_source) {
+          // Don't delete verified FAQs
+          return prev;
+        }
+
+        // Create two lists:
+        // 1. hiddenFaqs: All FAQs with deleted flag updated (for state)
+        // 2. visibleFaqs: FAQs that should be shown in UI (for display)
+        const hiddenFaqs = documentFAQs.map(faq => 
+          faq.faq_id === faqId ? { ...faq, deleted: true } : faq
+        );
+        const visibleFaqs = hiddenFaqs.filter(faq => !faq.deleted);
+
+        // Store both in state
+        const newState = new Map(prev);
+        newState.set(fileDetails.fileId + "_hidden", hiddenFaqs); // Store full list with deleted flags
+        newState.set(fileDetails.fileId, visibleFaqs); // Store visible list for UI
+        return newState;
+      }
+      return prev;
     });
   };
 
@@ -237,35 +325,20 @@ const FAQsPage: React.FC = () => {
     });
   };
 
-  const handleVerifyFAQ = async (faqId: string, isVerified: boolean) => {
-    if (!fileDetails?.fileId) return;
-    
-    // Update the state immediately for better UX
-    setFaqs(prevFaqs => {
-      const updatedFaqs = new Map(prevFaqs);
-      const documentFaqs = updatedFaqs.get(fileDetails.fileId) || [];
-      const updatedDocumentFaqs = documentFaqs.map(faq => 
-        faq.faq_id === faqId ? { ...faq, is_source: isVerified } : faq
-      );
-      updatedFaqs.set(fileDetails.fileId, updatedDocumentFaqs);
-      return updatedFaqs;
-    });
-  };
-
   const handleSelectAll = () => {
     if (!fileDetails?.fileId) return;
     
     setFaqs((prev) => {
       const updatedFaqs = new Map(prev);
-      const documentFaqs = updatedFaqs.get(fileDetails.fileId) || [];
-      const allVerified = documentFaqs.every(faq => faq.is_source);
+      const documentFAQs = updatedFaqs.get(fileDetails.fileId) || [];
+      const allVerified = documentFAQs.every(faq => faq.is_source);
       
-      const updatedDocumentFaqs = documentFaqs.map(faq => ({
+      const updatedDocumentFAQs = documentFAQs.map(faq => ({
         ...faq,
         is_source: !allVerified
       }));
       
-      updatedFaqs.set(fileDetails.fileId, updatedDocumentFaqs);
+      updatedFaqs.set(fileDetails.fileId, updatedDocumentFAQs);
       return updatedFaqs;
     });
   };

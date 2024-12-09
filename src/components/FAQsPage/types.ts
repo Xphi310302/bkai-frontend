@@ -6,7 +6,7 @@ export interface FAQ {
   is_source: boolean;
   created: string;
   modified: string;
-  deleted: boolean;
+  deleted?: boolean;
 }
 
 export interface Document {

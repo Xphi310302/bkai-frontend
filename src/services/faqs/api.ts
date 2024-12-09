@@ -85,10 +85,19 @@ export async function insertFAQ(faq: FAQ): Promise<FAQ> {
 
 export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
   try {
-    const response = await axiosInstance.post('/api/v1/modify-faq', faq);
+    const response = await axiosInstance.put('/api/v1/modify-faq', faq);
     return response.data;
   } catch (error) {
     console.error("Error modifying FAQ:", error);
+    throw error;
+  }
+}
+
+export async function deleteFAQ(faqId: string): Promise<void> {
+  try {
+    await axiosInstance.delete(`/api/v1/delete-faq/${faqId}`);
+  } catch (error) {
+    console.error("Error deleting FAQ:", error);
     throw error;
   }
 }
