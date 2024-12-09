@@ -2,28 +2,27 @@ import axiosInstance from '../axios-config';
 import type { FAQ } from '../../components/FAQsPage/types';
 import { getFilesService } from "../files/fileReadService";
 import { UploadedFile } from '@/components/UploadPage/types/files';
- 
 
 export async function getFAQsByDocument(fileName: string): Promise<FAQ[]> {
   try {
     const response = await axiosInstance.get(`/api/v1/get-faqs-by-file-name/${fileName}`);
-    const data = response.data; // Directly use response.data
+    const data = response.data;
 
-    // Log the entire response for debugging
     console.log("API Response:", data);
 
-    // Check if the response is an array
     if (!Array.isArray(data)) {
       throw new Error("Invalid response structure: Expected an array");
     }
 
-    return data.map((item: { faq_id: string; question: string; answer: string; file_id: string; verify: boolean }) => ({
+    return data.map((item: FAQ) => ({
+      faq_id: item.faq_id,
       question: item.question,
       answer: item.answer,
       file_id: item.file_id,
-      file_name: fileName,
-      verify: item.verify,
-      faq_id: item.faq_id, // Include faq_id if needed
+      is_source: item.is_source,
+      created: item.created,
+      modified: item.modified,
+      deleted: item.deleted
     }));
   } catch (error) {
     console.error("Error fetching FAQs:", error);
@@ -32,7 +31,6 @@ export async function getFAQsByDocument(fileName: string): Promise<FAQ[]> {
 }
 
 export async function getFAQsByFileId(fileId: string): Promise<FAQ[]> {
-
   try {
     const response = await axiosInstance.get(`/api/v1/get-faqs-by-file-id/${fileId}`);
 
@@ -47,19 +45,22 @@ export async function getFAQsByFileId(fileId: string): Promise<FAQ[]> {
       throw new Error("Invalid response structure: Expected an array");
     }
 
-    const mappedData = data.map((item: { faq_id: string; question: string; answer: string; file_id: string; verify: boolean }) => ({
+    const mappedData = data.map((item: FAQ) => ({
+      faq_id: item.faq_id,
       question: item.question,
       answer: item.answer,
       file_id: item.file_id,
-      verify: item.verify,
-      faq_id: item.faq_id,
+      is_source: item.is_source,
+      created: item.created,
+      modified: item.modified,
+      deleted: item.deleted
     }));
 
-    console.log("Mapped FAQs data:", mappedData); // Debug log
+    console.log("Mapped FAQs data:", mappedData);
     return mappedData;
   } catch (error) {
     console.error("Error in getFAQsByFileId:", error);
-    throw error;
+    throw new Error("Failed to fetch FAQs");
   }
 }
 

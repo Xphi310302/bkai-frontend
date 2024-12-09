@@ -3,7 +3,10 @@ export interface FAQ {
   question: string;
   answer: string;
   file_id: string;
-  verify: boolean;
+  is_source: boolean;
+  created: string;
+  modified: string;
+  deleted: boolean;
 }
 
 export interface Document {

@@ -21,9 +21,15 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove }) => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Update with new schema
+      const updatedFAQ: FAQ = {
+        ...faq,
+        question: editedQuestion,
+        answer: editedAnswer,
+        modified: new Date().toISOString(),
+      };
+      
       // Here you would typically make an API call to save the changes
-      faq.answer = editedAnswer;
-      faq.question = editedQuestion;
       setEditing(false);
     } catch (error) {
       console.error('Error saving FAQ:', error);
