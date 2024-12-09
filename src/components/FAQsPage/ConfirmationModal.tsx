@@ -1,67 +1,84 @@
-import React from 'react';
+import React from "react";
 
 interface ConfirmationModalProps {
-  isOpen: boolean;
-  onClose?: () => void;
-  onConfirm: () => void;
-  onCancel: () => void;
+  show: boolean;
   title: string;
   message: string;
-  confirmText?: string;
-  cancelText?: string;
-  action?: 'warning' | 'confirm';
+  action: string;
+  onClose: () => void;
+  onConfirm: () => void;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  onCancel,
+  show,
   title,
   message,
-  confirmText = 'Xác nhận',
-  cancelText = 'Hủy bỏ',
-  action = 'confirm'
+  action,
+  onClose,
+  onConfirm,
 }) => {
-  if (!isOpen) return null;
+  if (!show) return null;
 
-  const handleClose = () => {
-    if (onClose) onClose();
-    onCancel();
+  const getActionColor = () => {
+    switch (action) {
+      case 'delete':
+        return 'bg-red-600 hover:bg-red-700';
+      case 'verify':
+      case 'update-all':
+        return 'bg-green-600 hover:bg-green-700';
+      case 'warning':
+        return 'bg-yellow-600 hover:bg-yellow-700';
+      default:
+        return 'bg-blue-600 hover:bg-blue-700';
+    }
+  };
+
+  const getActionText = () => {
+    switch (action) {
+      case 'delete':
+        return 'Xóa';
+      case 'verify':
+        return 'Xác nhận';
+      case 'update-all':
+        return 'Cập nhật';
+      case 'warning':
+        return 'Đã hiểu';
+      default:
+        return 'Xác nhận';
+    }
+  };
+
+  const getTitleColor = () => {
+    switch (action) {
+      case 'delete':
+        return 'text-red-600';
+      case 'warning':
+        return 'text-yellow-600';
+      default:
+        return 'text-gray-900';
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center px-4">
-        {/* Backdrop */}
-        <div className="fixed inset-0 bg-black opacity-40" onClick={handleClose}></div>
-
-        {/* Modal */}
-        <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-          <div className="mb-4">
-            <h3 className={`text-lg font-semibold ${action === 'warning' ? 'text-red-600' : 'text-gray-900'}`}>{title}</h3>
-            <p className="mt-2 text-gray-600">{message}</p>
-          </div>
-
-          <div className="flex justify-end space-x-3">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h2 className={`text-2xl font-semibold mb-4 ${getTitleColor()}`}>{title}</h2>
+        <p className="text-gray-600 mb-6">{message}</p>
+        <div className="flex justify-end space-x-4">
+          {action !== 'warning' && (
             <button
-              onClick={handleClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
             >
-              {cancelText}
+              Hủy bỏ
             </button>
-            {action === 'confirm' && (
-              <button
-                onClick={() => {
-                  onConfirm();
-                  handleClose();
-                }}
-                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {confirmText}
-              </button>
-            )}
-          </div>
+          )}
+          <button
+            onClick={action === 'warning' ? onClose : onConfirm}
+            className={`px-4 py-2 text-white rounded transition-colors ${getActionColor()}`}
+          >
+            {getActionText()}
+          </button>
         </div>
       </div>
     </div>

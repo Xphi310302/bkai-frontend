@@ -9,9 +9,19 @@ type FAQItemProps = {
   setModalTitle: (title: string) => void;
   setModalMessage: (message: string) => void;
   setModalAction: (action: string) => void;
+  setModalCallback: (callback: () => void) => void;
 };
 
-const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setShowModal, setModalTitle, setModalMessage, setModalAction }) => {
+const FAQItem: React.FC<FAQItemProps> = ({ 
+  faq, 
+  onRemove, 
+  onVerifyChange, 
+  setShowModal, 
+  setModalTitle, 
+  setModalMessage, 
+  setModalAction,
+  setModalCallback 
+}) => {
   const [isEditing, setEditing] = useState(false);
   const [editedAnswer, setEditedAnswer] = useState(faq.answer);
   const [editedQuestion, setEditedQuestion] = useState(faq.question);
@@ -33,17 +43,33 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setSho
     if (faq.is_source) {
       setShowModal(true);
       setModalTitle("Cảnh báo");
-      setModalMessage("Bạn nên hủy xác nhận trước khi xóa");
+      setModalMessage("Bạn cần hủy xác nhận FAQ này trước khi xóa.");
       setModalAction("warning");
+      setModalCallback(() => () => {});
       return;
     }
-    onRemove(faq.faq_id);
+
+    setShowModal(true);
+    setModalTitle("Xác nhận xóa");
+    setModalMessage("Bạn có chắc chắn muốn xóa FAQ này không?");
+    setModalAction("delete");
+    setModalCallback(() => () => {
+      onRemove(faq.faq_id);
+    });
   };
 
   const handleVerifyFAQ = () => {
-    if (onVerifyChange) {
-      onVerifyChange(faq.faq_id, !faq.is_source);
-    }
+    setShowModal(true);
+    setModalTitle(faq.is_source ? "Hủy xác nhận" : "Xác nhận FAQ");
+    setModalMessage(faq.is_source 
+      ? "Bạn có chắc chắn muốn hủy xác nhận FAQ này không?" 
+      : "Bạn có chắc chắn muốn xác nhận FAQ này không?");
+    setModalAction("verify");
+    setModalCallback(() => () => {
+      if (onVerifyChange) {
+        onVerifyChange(faq.faq_id, !faq.is_source);
+      }
+    });
   };
 
   return (
@@ -52,7 +78,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setSho
         {/* Header Section */}
         <div className="flex justify-between items-center w-full gap-4">
           <div className="flex-grow min-w-0"> 
-            {isEditing ? (
+            {isEditing && !faq.is_source ? (
               <textarea
                 className="w-full p-4 border border-green-400 rounded-lg focus:ring-4 focus:ring-green-600 focus:border-transparent resize-none text-green-900 font-semibold"
                 value={editedQuestion}
@@ -72,20 +98,30 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setSho
           </div>
           <div className="flex items-center gap-3 flex-shrink-0"> 
             <button
-              className={`p-2 rounded-full transition-colors ${
+              className={`p-2 rounded-lg transition-colors duration-200 ${
                 isEditing 
-                  ? 'bg-green-500 text-white hover:bg-green-600' 
+                  ? 'bg-green-600 text-white hover:bg-green-700' 
                   : 'bg-green-100 text-green-700 hover:bg-green-200'
               }`}
-              onClick={() => setEditing(!isEditing)}
+              onClick={() => {
+                if (faq.is_source) {
+                  setShowModal(true);
+                  setModalTitle("Cảnh báo");
+                  setModalMessage("Bạn cần bỏ xác nhận FAQ trước khi chỉnh sửa.");
+                  setModalAction("warning");
+                  setModalCallback(() => () => {});
+                  return;
+                }
+                setEditing(!isEditing);
+              }}
             >
               {isEditing ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               )}
             </button>
@@ -118,8 +154,8 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setSho
                   />
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 
                     ${faq.is_source 
-                      ? 'bg-blue-600 border-blue-600 group-hover:bg-blue-700 group-hover:border-blue-700' 
-                      : 'border-gray-300 group-hover:border-blue-400'}`}
+                      ? 'bg-green-600 border-green-600 group-hover:bg-green-700 group-hover:border-green-700' 
+                      : 'border-gray-300 group-hover:border-green-400'}`}
                   >
                     {faq.is_source && (
                       <svg 
@@ -137,7 +173,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setSho
                       </svg>
                     )}
                   </div>
-                  <span className="ml-2 text-xs text-gray-500 group-hover:text-blue-600">Xác nhận</span>
+                  <span className="ml-2 text-xs text-gray-500 group-hover:text-green-600">Xác nhận</span>
                 </label>
               </div>
             )}
@@ -147,7 +183,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ faq, onRemove, onVerifyChange, setSho
         {/* Answer Section */}
         {isExpanded && (
           <div className="mt-4">
-            {isEditing ? (
+            {isEditing && !faq.is_source ? (
               <div className="space-y-6">
                 <textarea
                   className="w-full p-5 border border-green-400 rounded-lg focus:ring-4 focus:ring-green-600 focus:border-transparent min-h-[200px] text-green-800"

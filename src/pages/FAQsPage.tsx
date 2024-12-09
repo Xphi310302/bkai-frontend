@@ -7,32 +7,38 @@ import { getFileByIdService } from "../services/files/fileReadService";
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmationModal from "../components/FAQsPage/ConfirmationModal";
 
-const DocumentComponent: React.FC<{ 
-  fileName: string; 
-  faqs: FAQ[]; 
+interface DocumentComponentProps {
+  fileName: string;
+  faqs: FAQ[];
   onUpdateAll: () => void;
   onRemoveFAQ: (faqId: string) => void;
   onAddFAQ: () => void;
   onVerifyFAQ: (faqId: string, isVerified: boolean) => void;
   onSelectAll: () => void;
-}> = ({ 
+}
+
+const DocumentComponent: React.FC<DocumentComponentProps> = ({ 
   fileName, 
   faqs, 
   onUpdateAll,
   onRemoveFAQ,
   onAddFAQ,
-  onVerifyFAQ,
-  onSelectAll
+  onVerifyFAQ
 }) => {
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [modalAction, setModalAction] = useState("");
+  const [modalCallback, setModalCallback] = useState<() => void>(() => {});
+
+  const handleConfirmAction = () => {
+    modalCallback();
+    setShowModal(false);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm mb-6 w-full max-w-full mx-auto border border-green-300">
-      <div className="sticky top-0 bg-white p-6 border border-green-300 z-50 ">
+      <div className="sticky top-0 bg-white p-6 border-b border-green-300 z-50">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,91 +48,64 @@ const DocumentComponent: React.FC<{
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={onSelectAll}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2"
+              onClick={() => {
+                setShowModal(true);
+                setModalTitle("Xác nhận cập nhật");
+                setModalMessage("Bạn có chắc chắn muốn cập nhật tất cả FAQ không?");
+                setModalAction("update-all");
+                setModalCallback(() => onUpdateAll);
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
             >
-              <svg 
-                className="w-5 h-5" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth="2" 
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Chọn tất cả</span>
-            </button>
-            <button 
-              onClick={() => setShowConfirmModal(true)} 
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800 transition-colors"
-            >
-              Cập nhật dữ liệu
+              <span>Cập nhật tất cả</span>
             </button>
           </div>
         </div>
       </div>
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-6">
         {faqs.map((faq) => (
-          <div
+          <FAQItem
             key={faq.faq_id}
-            className="bg-green-50 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
-          >
-            <FAQItem
-              faq={faq}
-              onRemove={onRemoveFAQ}
-              onVerifyChange={onVerifyFAQ}
-              setShowModal={setShowModal}
-              setModalTitle={setModalTitle}
-              setModalMessage={setModalMessage}
-              setModalAction={setModalAction}
-            />
-          </div>
+            faq={faq}
+            onRemove={onRemoveFAQ}
+            onVerifyChange={onVerifyFAQ}
+            setShowModal={setShowModal}
+            setModalTitle={setModalTitle}
+            setModalMessage={setModalMessage}
+            setModalAction={setModalAction}
+            setModalCallback={setModalCallback}
+          />
         ))}
-        <div className="flex justify-end mt-4">
-          <button
-            onClick={onAddFAQ}
-            className="p-3 rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md transition-all duration-200 flex items-center justify-center w-12 h-12"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6">
-              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 01-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-          </button>
-        </div>
       </div>
-
+      <div className="flex justify-end p-6 border-t border-green-300">
+        <button
+          onClick={onAddFAQ}
+          className="w-12 h-12 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors flex items-center justify-center shadow-lg hover:shadow-xl"
+          title="Thêm FAQ"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </div>
       <ConfirmationModal
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onConfirm={onUpdateAll}
-        onCancel={() => setShowConfirmModal(false)}
-        title="Xác nhận cập nhật"
-        message="Bạn có chắc chắn muốn cập nhật tất cả các FAQ không?"
-        confirmText="Cập nhật"
-        cancelText="Hủy bỏ"
-        action="confirm"
-      />
-      <ConfirmationModal
-        isOpen={showModal}
+        show={showModal}
         title={modalTitle}
         message={modalMessage}
-        onConfirm={() => setShowModal(false)}
-        onCancel={() => setShowModal(false)}
-        action={modalAction as 'warning' | 'confirm'}
+        action={modalAction}
+        onClose={() => setShowModal(false)}
+        onConfirm={handleConfirmAction}
       />
     </div>
   );
 };
 
 const FAQsPage: React.FC = () => {
-  const [faqs, setFaqs] = useState<Map<string, FAQ[]>>(new Map());
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [fileDetails, setFileDetails] = useState<{ fileId: string; fileName: string } | null>(null);
-  const [existingFaqIds, setExistingFaqIds] = useState<Set<string>>(new Set());
+  const [documents, setDocuments] = useState<{ [key: string]: FAQ[] }>({});
+  const [fileDetails, setFileDetails] = useState<{ fileName: string } | null>(null);
 
   const searchParams = new URLSearchParams(window.location.search);
   const fileId = searchParams.get('fileId');
@@ -135,10 +114,10 @@ const FAQsPage: React.FC = () => {
     if (fileId) {
       const fetchFileDetails = async () => {
         try {
-          const fileDetails = await getFileByIdService(fileId);
-          if (fileDetails) {
-            setFileDetails({ fileId, fileName: fileDetails.fileName });
-            document.title = `FAQs - ${fileDetails.fileName}`;
+          const details = await getFileByIdService(fileId);
+          if (details) {
+            setFileDetails({ fileName: details.fileName });
+            document.title = `FAQs - ${details.fileName}`;
           }
         } catch (error) {
           console.error("Error fetching file details:", error);
@@ -146,36 +125,92 @@ const FAQsPage: React.FC = () => {
       };
 
       const fetchFAQs = async () => {
-        setLoading(true);
-        setError(null);
         try {
           const documentFaqs = await getFAQsByFileId(fileId);
-          // Save existing FAQ IDs
-          setExistingFaqIds(new Set(documentFaqs.map(faq => faq.faq_id)));
-          setFaqs(new Map().set(fileId, documentFaqs));
+          setDocuments(prev => ({
+            ...prev,
+            [fileId]: documentFaqs
+          }));
         } catch (error) {
           console.error("Error fetching FAQs:", error);
-          setError("Failed to fetch FAQs. Please try again later.");
-        } finally {
-          setLoading(false);
         }
       };
 
       fetchFileDetails();
       fetchFAQs();
     }
-
-    return () => {
-      document.title = 'FAQs';
-    };
   }, [fileId]);
 
-  const handleUpdateAll = async () => {
-    if (!fileDetails?.fileId) return;
-    setLoading(true);
-    
+  const handleUpdateAll = async (fileId: string) => {
+    const faqs = documents[fileId];
+    if (!faqs) return;
+
     try {
-      const currentDate = new Date().toLocaleString('en-US', {
+      await Promise.all(
+        faqs.map(async (faq) => {
+          const updatedFaq = { ...faq, is_source: true };
+          if (faq.faq_id.startsWith('new-')) {
+            await insertFAQ(updatedFaq);
+          } else {
+            await modifyFAQ(updatedFaq);
+          }
+        })
+      );
+
+      const updatedFaqs = await getFAQsByFileId(fileId);
+      setDocuments(prev => ({
+        ...prev,
+        [fileId]: updatedFaqs
+      }));
+    } catch (error) {
+      console.error('Error updating FAQs:', error);
+    }
+  };
+
+  const handleVerifyFAQ = async (fileId: string, faqId: string, isVerified: boolean) => {
+    try {
+      const faq = documents[fileId]?.find(f => f.faq_id === faqId);
+      if (!faq) return;
+
+      const updatedFaq = { ...faq, is_source: isVerified };
+      
+      if (faq.faq_id.startsWith('new-')) {
+        await insertFAQ(updatedFaq);
+      } else {
+        await modifyFAQ(updatedFaq);
+      }
+
+      const updatedFaqs = await getFAQsByFileId(fileId);
+      setDocuments(prev => ({
+        ...prev,
+        [fileId]: updatedFaqs
+      }));
+    } catch (error) {
+      console.error('Error updating FAQ:', error);
+    }
+  };
+
+  const handleRemoveFAQ = async (fileId: string, faqId: string) => {
+    try {
+      await deleteFAQ(faqId);
+      const updatedFaqs = await getFAQsByFileId(fileId);
+      setDocuments(prev => ({
+        ...prev,
+        [fileId]: updatedFaqs
+      }));
+    } catch (error) {
+      console.error('Error deleting FAQ:', error);
+    }
+  };
+
+  const handleAddFAQ = async (fileId: string) => {
+    const newFAQ: FAQ = {
+      faq_id: uuidv4(),
+      file_id: fileId,
+      question: '',
+      answer: '',
+      is_source: false,
+      created: new Date().toLocaleString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -183,198 +218,85 @@ const FAQsPage: React.FC = () => {
         minute: '2-digit',
         second: '2-digit',
         hour12: false
-      });
-
-      // Get all FAQs including deleted ones
-      const allFaqs = faqs.get(fileDetails.fileId + "_hidden") || faqs.get(fileDetails.fileId) || [];
-      
-      // Step 1: Process all deletions first
-      const deletedFaqs = allFaqs.filter(faq => faq.deleted);
-      console.log("Processing deletions:", deletedFaqs.length, "FAQs to delete");
-      
-      for (const faq of deletedFaqs) {
-        try {
-          console.log("Deleting FAQ:", faq.faq_id);
-          await deleteFAQ(faq.faq_id);
-          console.log("Successfully deleted FAQ:", faq.faq_id);
-        } catch (error) {
-          console.error("Failed to delete FAQ:", faq.faq_id, error);
-          setError("Failed to delete FAQ. Please try again.");
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Step 2: Process remaining FAQs
-      const remainingFaqs = allFaqs.filter(faq => !faq.deleted);
-      
-      for (const faq of remainingFaqs) {
-        try {
-          if (!existingFaqIds.has(faq.faq_id)) {
-            // New FAQ - create it
-            console.log("Creating new FAQ:", faq.faq_id);
-            await insertFAQ(faq);
-          } else if (faq.is_source) {
-            // Existing and verified FAQ - update it
-            console.log("Modifying verified FAQ:", faq.faq_id);
-            const faqToUpdate = {
-              ...faq,
-              modified: currentDate // Update modified date for verified FAQs
-            };
-            await modifyFAQ(faqToUpdate);
-          }
-          // Skip FAQs that are neither new nor verified
-        } catch (error) {
-          console.error("Failed to process FAQ:", faq.faq_id, error);
-          setError("Failed to update FAQ. Please try again.");
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Step 3: Refresh the FAQ list from server
-      console.log("Refreshing FAQ list from server");
-      const updatedFaqs = await getFAQsByFileId(fileDetails.fileId);
-      setExistingFaqIds(new Set(updatedFaqs.map(faq => faq.faq_id)));
-      setFaqs(new Map().set(fileDetails.fileId, updatedFaqs));
-      
-      console.log("All FAQs updated successfully");
-    } catch (error) {
-      console.error("Error in handleUpdateAll:", error);
-      setError("Failed to update FAQs. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyFAQ = (faqId: string, isVerified: boolean) => {
-    if (!fileDetails) return;
-    
-    setFaqs((prev) => {
-      const updatedFAQs = new Map(prev);
-      const documentFAQs = updatedFAQs.get(fileDetails.fileId) || [];
-      const updatedDocumentFAQs = documentFAQs.map(faq => 
-        faq.faq_id === faqId ? { ...faq, is_source: isVerified } : faq
-      );
-      updatedFAQs.set(fileDetails.fileId, updatedDocumentFAQs);
-      return updatedFAQs;
-    });
-  };
-
-  const handleRemoveFAQ = (faqId: string) => {
-    if (!fileDetails) return;
-    
-    setFaqs((prev) => {
-      const updatedFAQs = new Map(prev);
-      const documentFAQs = updatedFAQs.get(fileDetails.fileId) || [];
-      const faqToDelete = documentFAQs.find(faq => faq.faq_id === faqId);
-      
-      if (faqToDelete) {
-        if (faqToDelete.is_source) {
-          // Don't delete verified FAQs
-          return prev;
-        }
-
-        // Create two lists:
-        // 1. hiddenFaqs: All FAQs with deleted flag updated (for state)
-        // 2. visibleFaqs: FAQs that should be shown in UI (for display)
-        const hiddenFaqs = documentFAQs.map(faq => 
-          faq.faq_id === faqId ? { ...faq, deleted: true } : faq
-        );
-        const visibleFaqs = hiddenFaqs.filter(faq => !faq.deleted);
-
-        // Store both in state
-        const newState = new Map(prev);
-        newState.set(fileDetails.fileId + "_hidden", hiddenFaqs); // Store full list with deleted flags
-        newState.set(fileDetails.fileId, visibleFaqs); // Store visible list for UI
-        return newState;
-      }
-      return prev;
-    });
-  };
-
-  const handleAddFAQ = () => {
-    if (!fileDetails?.fileId) return;
-
-    const currentDate = new Date().toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    });
-
-    const newFAQ: FAQ = {
-      faq_id: uuidv4(),
-      file_id: fileDetails.fileId,
-      question: '',
-      answer: '',
-      is_source: false,
-      created: currentDate,
-      modified: currentDate,
+      }),
+      modified: new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }),
       deleted: false
     };
 
-    setFaqs(prevFaqs => {
-      const updatedFaqs = new Map(prevFaqs);
-      const documentFaqs = updatedFaqs.get(fileDetails.fileId) || [];
-      updatedFaqs.set(fileDetails.fileId, [...documentFaqs, newFAQ]);
-      return updatedFaqs;
-    });
+    try {
+      await insertFAQ(newFAQ);
+      const updatedFaqs = await getFAQsByFileId(fileId);
+      setDocuments(prev => ({
+        ...prev,
+        [fileId]: updatedFaqs
+      }));
+    } catch (error) {
+      console.error('Error adding FAQ:', error);
+    }
   };
 
-  const handleSelectAll = () => {
-    if (!fileDetails?.fileId) return;
-    
-    setFaqs((prev) => {
-      const updatedFaqs = new Map(prev);
-      const documentFAQs = updatedFaqs.get(fileDetails.fileId) || [];
-      const allVerified = documentFAQs.every(faq => faq.is_source);
-      
-      const updatedDocumentFAQs = documentFAQs.map(faq => ({
-        ...faq,
-        is_source: !allVerified
+  const handleSelectAll = async (fileId: string) => {
+    try {
+      const faqs = documents[fileId];
+      if (!faqs) return;
+
+      await Promise.all(
+        faqs.map(async (faq) => {
+          const updatedFaq = { ...faq, is_source: true };
+          if (faq.faq_id.startsWith('new-')) {
+            await insertFAQ(updatedFaq);
+          } else {
+            await modifyFAQ(updatedFaq);
+          }
+        })
+      );
+
+      const updatedFaqs = await getFAQsByFileId(fileId);
+      setDocuments(prev => ({
+        ...prev,
+        [fileId]: updatedFaqs
       }));
-      
-      updatedFaqs.set(fileDetails.fileId, updatedDocumentFAQs);
-      return updatedFaqs;
-    });
+    } catch (error) {
+      console.error('Error selecting all FAQs:', error);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-200 py-8">
-      <div className="container mx-auto px-4 max-w-screen-2xl relative">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-200">
+      <div className="container mx-auto px-4 py-8 max-w-screen-2xl">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-green-800 mb-3">
             CÂU HỎI THƯỜNG GẶP
           </h1>
-          <p className="text-xl text-green-600">
-            {`Các câu hỏi thường gặp về `}
-            <strong>{fileDetails?.fileName.replace('.pdf', '')}</strong>
-          </p>
+          {fileDetails && (
+            <p className="text-xl text-green-600">
+              {`Các câu hỏi thường gặp về `}
+              <strong>{fileDetails.fileName.replace('.pdf', '')}</strong>
+            </p>
+          )}
         </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500"></div>
-          </div>
-        ) : error ? (
-          <div className="text-center text-red-500 text-xl">{error}</div>
-        ) : (
-          fileDetails && (
+        <div className="space-y-6">
+          {Object.entries(documents).map(([docFileId, faqs]) => (
             <DocumentComponent
-              fileName={fileDetails.fileName}
-              faqs={faqs.get(fileDetails.fileId) || []}
-              onUpdateAll={handleUpdateAll}
-              onRemoveFAQ={handleRemoveFAQ}
-              onAddFAQ={handleAddFAQ}
-              onVerifyFAQ={handleVerifyFAQ}
-              onSelectAll={handleSelectAll}
+              key={docFileId}
+              fileName={fileDetails?.fileName || docFileId}
+              faqs={faqs}
+              onUpdateAll={() => handleUpdateAll(docFileId)}
+              onRemoveFAQ={(faqId) => handleRemoveFAQ(docFileId, faqId)}
+              onAddFAQ={() => handleAddFAQ(docFileId)}
+              onVerifyFAQ={(faqId, isVerified) => handleVerifyFAQ(docFileId, faqId, isVerified)}
+              onSelectAll={() => handleSelectAll(docFileId)}
             />
-          )
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );
