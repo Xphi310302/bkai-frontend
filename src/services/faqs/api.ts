@@ -72,3 +72,23 @@ export const getDocuments = async (): Promise<UploadedFile[]> => {
     throw new Error("Failed to fetch documents");
   }
 };
+
+export async function insertFAQ(faq: FAQ): Promise<FAQ> {
+  try {
+    const response = await axiosInstance.post('/api/v1/insert-faq', faq);
+    return response.data;
+  } catch (error) {
+    console.error("Error inserting FAQ:", error);
+    throw error;
+  }
+}
+
+export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
+  try {
+    const response = await axiosInstance.post('/api/v1/modify-faq', faq);
+    return response.data;
+  } catch (error) {
+    console.error("Error modifying FAQ:", error);
+    throw error;
+  }
+}

@@ -1,6 +1,6 @@
 // src/pages/FAQsPage.tsx
 import React, { useEffect, useState } from "react";
-import { getFAQsByFileId } from "../services/faqs/api";
+import { getFAQsByFileId, modifyFAQ, insertFAQ } from "../services/faqs/api";
 import type { FAQ } from "../components/FAQsPage/types"; 
 import FAQItem from "../components/FAQsPage/FAQItem"; 
 import { getFileByIdService } from "../services/files/fileReadService";
@@ -108,6 +108,7 @@ const FAQsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fileDetails, setFileDetails] = useState<{ fileId: string; fileName: string } | null>(null);
+  const [existingFaqIds, setExistingFaqIds] = useState<Set<string>>(new Set());
 
   const searchParams = new URLSearchParams(window.location.search);
   const fileId = searchParams.get('fileId');
@@ -131,6 +132,8 @@ const FAQsPage: React.FC = () => {
         setError(null);
         try {
           const documentFaqs = await getFAQsByFileId(fileId);
+          // Save existing FAQ IDs
+          setExistingFaqIds(new Set(documentFaqs.map(faq => faq.faq_id)));
           setFaqs(new Map().set(fileId, documentFaqs));
         } catch (error) {
           console.error("Error fetching FAQs:", error);
@@ -150,9 +153,42 @@ const FAQsPage: React.FC = () => {
   }, [fileId]);
 
   const handleUpdateAll = async () => {
-    if (!fileDetails) return;
-    // TODO: Implement the API call to update all FAQs
-    console.log("Updating all FAQs for file:", fileDetails.fileId);
+    if (!fileDetails?.fileId) return;
+    setLoading(true);
+    
+    try {
+      const currentFaqs = faqs.get(fileDetails.fileId) || [];
+      const updatePromises = currentFaqs.map(async (faq) => {
+        try {
+          if (existingFaqIds.has(faq.faq_id)) {
+            // Existing FAQ - call modify API
+            return await modifyFAQ(faq);
+          } else {
+            // New FAQ - call insert API
+            return await insertFAQ(faq);
+          }
+        } catch (error) {
+          console.error(`Error updating FAQ ${faq.faq_id}:`, error);
+          throw error;
+        }
+      });
+
+      const updatedFaqs = await Promise.all(updatePromises);
+      
+      // Update the existing FAQ IDs set with any newly inserted FAQs
+      setExistingFaqIds(new Set(updatedFaqs.map(faq => faq.faq_id)));
+      
+      // Update the faqs state with the response from the server
+      setFaqs(new Map().set(fileDetails.fileId, updatedFaqs));
+      
+      // Show success message or notification
+      console.log("All FAQs updated successfully");
+    } catch (error) {
+      console.error("Error updating FAQs:", error);
+      setError("Failed to update FAQs. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemoveFAQ = (faqId: string) => {
@@ -170,32 +206,50 @@ const FAQsPage: React.FC = () => {
   };
 
   const handleAddFAQ = () => {
-    if (!fileDetails) return; 
-    const newFAQ = { faq_id: uuidv4(), file_id: fileDetails.fileId, question: '', answer: '', verify: false };
-    setFaqs((prev) => {
-      const updatedFAQs = new Map(prev);
-      const documentFAQs = updatedFAQs.get(fileDetails.fileId) || [];
-      updatedFAQs.set(fileDetails.fileId, [...documentFAQs, newFAQ]);
-      return updatedFAQs;
+    if (!fileDetails?.fileId) return;
+
+    const currentDate = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+
+    const newFAQ: FAQ = {
+      faq_id: uuidv4(),
+      file_id: fileDetails.fileId,
+      question: '',
+      answer: '',
+      is_source: false,
+      created: currentDate,
+      modified: currentDate,
+      deleted: false
+    };
+
+    setFaqs(prevFaqs => {
+      const updatedFaqs = new Map(prevFaqs);
+      const documentFaqs = updatedFaqs.get(fileDetails.fileId) || [];
+      updatedFaqs.set(fileDetails.fileId, [...documentFaqs, newFAQ]);
+      return updatedFaqs;
     });
   };
 
   const handleVerifyFAQ = async (faqId: string, isVerified: boolean) => {
-    try {
-      // Here you would make an API call to update the verification status
-      const updatedFaqs = new Map(faqs);
-      if (fileDetails?.fileId) {
-        const documentFaqs = updatedFaqs.get(fileDetails.fileId) || [];
-        const updatedDocumentFaqs = documentFaqs.map(faq => 
-          faq.faq_id === faqId ? { ...faq, is_source: isVerified } : faq
-        );
-        updatedFaqs.set(fileDetails.fileId, updatedDocumentFaqs);
-        setFaqs(updatedFaqs);
-      }
-    } catch (error) {
-      console.error("Error verifying FAQ:", error);
-      // You might want to show an error message to the user here
-    }
+    if (!fileDetails?.fileId) return;
+    
+    // Update the state immediately for better UX
+    setFaqs(prevFaqs => {
+      const updatedFaqs = new Map(prevFaqs);
+      const documentFaqs = updatedFaqs.get(fileDetails.fileId) || [];
+      const updatedDocumentFaqs = documentFaqs.map(faq => 
+        faq.faq_id === faqId ? { ...faq, is_source: isVerified } : faq
+      );
+      updatedFaqs.set(fileDetails.fileId, updatedDocumentFaqs);
+      return updatedFaqs;
+    });
   };
 
   const handleSelectAll = () => {
