@@ -12,6 +12,7 @@ import Navigation from "./components/Navigation";
 import Dashboard from "./pages/Dashboard";
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
+import { FAQProvider } from './context/FAQContext';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -35,7 +36,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <Router>
-      <AppContent />
+      <FAQProvider>
+        <AppContent />
+      </FAQProvider>
     </Router>
   );
 };

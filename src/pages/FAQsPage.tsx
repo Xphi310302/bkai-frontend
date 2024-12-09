@@ -1,20 +1,21 @@
 // src/pages/FAQsPage.tsx
 import React, { useEffect, useState } from "react";
-import { getFAQsByFileId, modifyFAQ, insertFAQ, deleteFAQ } from "../services/faqs/api";
 import type { FAQ } from "../components/FAQsPage/types"; 
 import FAQItem from "../components/FAQsPage/FAQItem"; 
 import { getFileByIdService } from "../services/files/fileReadService";
 import { v4 as uuidv4 } from 'uuid';
 import ConfirmationModal from "../components/FAQsPage/ConfirmationModal";
+import ProcessingModal from "../components/FAQsPage/ProcessingModal";
+import { useFAQ } from "../context/FAQContext";
+import { insertFAQ, deleteFAQ } from "../services/faqs/api";
 
 interface DocumentComponentProps {
   fileName: string;
   faqs: FAQ[];
-  onUpdateAll: () => void;
+  onUpdateAll: () => Promise<void>;
   onRemoveFAQ: (faqId: string) => void;
   onAddFAQ: () => void;
   onVerifyFAQ: (faqId: string, isVerified: boolean) => void;
-  onSelectAll: () => void;
 }
 
 const DocumentComponent: React.FC<DocumentComponentProps> = ({ 
@@ -23,17 +24,30 @@ const DocumentComponent: React.FC<DocumentComponentProps> = ({
   onUpdateAll,
   onRemoveFAQ,
   onAddFAQ,
-  onVerifyFAQ
+  onVerifyFAQ,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [modalAction, setModalAction] = useState("");
   const [modalCallback, setModalCallback] = useState<() => void>(() => {});
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleConfirmAction = () => {
-    modalCallback();
-    setShowModal(false);
+  const handleConfirmAction = async () => {
+    if (modalAction === "update-all") {
+      setShowModal(false);
+      setIsProcessing(true);
+      try {
+        await onUpdateAll();
+      } catch (error) {
+        console.error('Error updating all FAQs:', error);
+      } finally {
+        setIsProcessing(false);
+      }
+    } else {
+      modalCallback();
+      setShowModal(false);
+    }
   };
 
   return (
@@ -99,12 +113,16 @@ const DocumentComponent: React.FC<DocumentComponentProps> = ({
         onClose={() => setShowModal(false)}
         onConfirm={handleConfirmAction}
       />
+      <ProcessingModal
+        show={isProcessing}
+        message="Đang xử lý cập nhật FAQ..."
+      />
     </div>
   );
 };
 
 const FAQsPage: React.FC = () => {
-  const [documents, setDocuments] = useState<{ [key: string]: FAQ[] }>({});
+  const { faqs, updateAllFAQs, verifyFAQ, refreshFAQs } = useFAQ();
   const [fileDetails, setFileDetails] = useState<{ fileName: string } | null>(null);
 
   const searchParams = new URLSearchParams(window.location.search);
@@ -124,80 +142,15 @@ const FAQsPage: React.FC = () => {
         }
       };
 
-      const fetchFAQs = async () => {
-        try {
-          const documentFaqs = await getFAQsByFileId(fileId);
-          setDocuments(prev => ({
-            ...prev,
-            [fileId]: documentFaqs
-          }));
-        } catch (error) {
-          console.error("Error fetching FAQs:", error);
-        }
-      };
-
       fetchFileDetails();
-      fetchFAQs();
+      refreshFAQs(fileId);
     }
-  }, [fileId]);
-
-  const handleUpdateAll = async (fileId: string) => {
-    const faqs = documents[fileId];
-    if (!faqs) return;
-
-    try {
-      await Promise.all(
-        faqs.map(async (faq) => {
-          const updatedFaq = { ...faq, is_source: true };
-          if (faq.faq_id.startsWith('new-')) {
-            await insertFAQ(updatedFaq);
-          } else {
-            await modifyFAQ(updatedFaq);
-          }
-        })
-      );
-
-      const updatedFaqs = await getFAQsByFileId(fileId);
-      setDocuments(prev => ({
-        ...prev,
-        [fileId]: updatedFaqs
-      }));
-    } catch (error) {
-      console.error('Error updating FAQs:', error);
-    }
-  };
-
-  const handleVerifyFAQ = async (fileId: string, faqId: string, isVerified: boolean) => {
-    try {
-      const faq = documents[fileId]?.find(f => f.faq_id === faqId);
-      if (!faq) return;
-
-      const updatedFaq = { ...faq, is_source: isVerified };
-      
-      if (faq.faq_id.startsWith('new-')) {
-        await insertFAQ(updatedFaq);
-      } else {
-        await modifyFAQ(updatedFaq);
-      }
-
-      const updatedFaqs = await getFAQsByFileId(fileId);
-      setDocuments(prev => ({
-        ...prev,
-        [fileId]: updatedFaqs
-      }));
-    } catch (error) {
-      console.error('Error updating FAQ:', error);
-    }
-  };
+  }, [fileId, refreshFAQs]);
 
   const handleRemoveFAQ = async (fileId: string, faqId: string) => {
     try {
       await deleteFAQ(faqId);
-      const updatedFaqs = await getFAQsByFileId(fileId);
-      setDocuments(prev => ({
-        ...prev,
-        [fileId]: updatedFaqs
-      }));
+      await refreshFAQs(fileId);
     } catch (error) {
       console.error('Error deleting FAQ:', error);
     }
@@ -205,67 +158,21 @@ const FAQsPage: React.FC = () => {
 
   const handleAddFAQ = async (fileId: string) => {
     const newFAQ: FAQ = {
-      faq_id: uuidv4(),
+      faq_id: `new-${uuidv4()}`,
       file_id: fileId,
       question: '',
       answer: '',
       is_source: false,
-      created: new Date().toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      }),
-      modified: new Date().toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      }),
+      created: new Date().toISOString(),
+      modified: new Date().toISOString(),
       deleted: false
     };
 
     try {
       await insertFAQ(newFAQ);
-      const updatedFaqs = await getFAQsByFileId(fileId);
-      setDocuments(prev => ({
-        ...prev,
-        [fileId]: updatedFaqs
-      }));
+      await refreshFAQs(fileId);
     } catch (error) {
       console.error('Error adding FAQ:', error);
-    }
-  };
-
-  const handleSelectAll = async (fileId: string) => {
-    try {
-      const faqs = documents[fileId];
-      if (!faqs) return;
-
-      await Promise.all(
-        faqs.map(async (faq) => {
-          const updatedFaq = { ...faq, is_source: true };
-          if (faq.faq_id.startsWith('new-')) {
-            await insertFAQ(updatedFaq);
-          } else {
-            await modifyFAQ(updatedFaq);
-          }
-        })
-      );
-
-      const updatedFaqs = await getFAQsByFileId(fileId);
-      setDocuments(prev => ({
-        ...prev,
-        [fileId]: updatedFaqs
-      }));
-    } catch (error) {
-      console.error('Error selecting all FAQs:', error);
     }
   };
 
@@ -284,16 +191,15 @@ const FAQsPage: React.FC = () => {
           )}
         </div>
         <div className="space-y-6">
-          {Object.entries(documents).map(([docFileId, faqs]) => (
+          {Object.entries(faqs).map(([docFileId, docFaqs]) => (
             <DocumentComponent
               key={docFileId}
               fileName={fileDetails?.fileName || docFileId}
-              faqs={faqs}
-              onUpdateAll={() => handleUpdateAll(docFileId)}
+              faqs={docFaqs}
+              onUpdateAll={() => updateAllFAQs(docFileId)}
               onRemoveFAQ={(faqId) => handleRemoveFAQ(docFileId, faqId)}
               onAddFAQ={() => handleAddFAQ(docFileId)}
-              onVerifyFAQ={(faqId, isVerified) => handleVerifyFAQ(docFileId, faqId, isVerified)}
-              onSelectAll={() => handleSelectAll(docFileId)}
+              onVerifyFAQ={(faqId, isVerified) => verifyFAQ(docFileId, faqId, isVerified)}
             />
           ))}
         </div>

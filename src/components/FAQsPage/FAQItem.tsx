@@ -1,84 +1,118 @@
-import React, { useState, useEffect } from "react";
-import type { FAQ } from "./types";
+import React, { useState, useEffect } from 'react';
+import type { FAQ } from './types';
+import { useFAQ } from '../../context/FAQContext';
 
-type FAQItemProps = {
+interface FAQItemProps {
   faq: FAQ;
   onRemove: (faqId: string) => void;
-  onVerifyChange?: (faqId: string, isVerified: boolean) => void;
+  onVerifyChange: (faqId: string, isVerified: boolean) => void;
   setShowModal: (show: boolean) => void;
   setModalTitle: (title: string) => void;
   setModalMessage: (message: string) => void;
   setModalAction: (action: string) => void;
   setModalCallback: (callback: () => void) => void;
-};
+}
 
-const FAQItem: React.FC<FAQItemProps> = ({ 
-  faq, 
-  onRemove, 
-  onVerifyChange, 
-  setShowModal, 
-  setModalTitle, 
-  setModalMessage, 
+const FAQItem: React.FC<FAQItemProps> = ({
+  faq,
+  onRemove,
+  onVerifyChange,
+  setShowModal,
+  setModalTitle,
+  setModalMessage,
   setModalAction,
-  setModalCallback 
+  setModalCallback,
 }) => {
-  const [isEditing, setEditing] = useState(false);
-  const [editedAnswer, setEditedAnswer] = useState(faq.answer);
+  const { updateFAQ } = useFAQ();
+  const [isEditing, setIsEditing] = useState(false);
   const [editedQuestion, setEditedQuestion] = useState(faq.question);
+  const [editedAnswer, setEditedAnswer] = useState(faq.answer);
+  const [isVerified, setIsVerified] = useState(faq.is_source);
   const [isExpanded, setExpanded] = useState(true);
 
   useEffect(() => {
-    setEditedAnswer(faq.answer);
+    setIsVerified(faq.is_source);
     setEditedQuestion(faq.question);
+    setEditedAnswer(faq.answer);
   }, [faq]);
 
-  useEffect(() => {
-    if (isEditing) {
-      faq.question = editedQuestion;
-      faq.answer = editedAnswer;
+  const handleEdit = () => {
+    if (faq.is_source) {
+      setShowModal(true);
+      setModalTitle("Cảnh báo");
+      setModalMessage("Bạn cần bỏ xác nhận FAQ trước khi chỉnh sửa.");
+      setModalAction("warning");
+      setModalCallback(() => () => {});
+      return;
     }
-  }, [editedQuestion, editedAnswer, isEditing, faq]);
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const updatedFAQ: FAQ = {
+        ...faq,
+        question: editedQuestion,
+        answer: editedAnswer,
+        modified: new Date().toISOString(),
+      };
+      await updateFAQ(faq.file_id, updatedFAQ);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving FAQ:', error);
+      setShowModal(true);
+      setModalTitle("Lỗi");
+      setModalMessage("Có lỗi xảy ra khi cập nhật FAQ. Vui lòng thử lại.");
+      setModalAction("error");
+      setModalCallback(() => () => {});
+    }
+  };
+
+  const handleCancel = () => {
+    setEditedQuestion(faq.question);
+    setEditedAnswer(faq.answer);
+    setIsEditing(false);
+  };
+
+  const handleVerifyChange = () => {
+    setShowModal(true);
+    if (isVerified) {
+      setModalTitle("Xác nhận bỏ xác nhận");
+      setModalMessage("Bạn có chắc chắn muốn bỏ xác nhận FAQ này không?");
+    } else {
+      setModalTitle("Xác nhận xác nhận");
+      setModalMessage("Bạn có chắc chắn muốn xác nhận FAQ này không?");
+    }
+    setModalAction("verify");
+    setModalCallback(() => () => {
+      setIsVerified(!isVerified);
+      onVerifyChange(faq.faq_id, !isVerified);
+    });
+  };
 
   const handleDelete = () => {
     if (faq.is_source) {
       setShowModal(true);
       setModalTitle("Cảnh báo");
-      setModalMessage("Bạn cần hủy xác nhận FAQ này trước khi xóa.");
+      setModalMessage("Bạn cần bỏ xác nhận FAQ trước khi xóa.");
       setModalAction("warning");
       setModalCallback(() => () => {});
       return;
     }
-
     setShowModal(true);
     setModalTitle("Xác nhận xóa");
     setModalMessage("Bạn có chắc chắn muốn xóa FAQ này không?");
     setModalAction("delete");
-    setModalCallback(() => () => {
-      onRemove(faq.faq_id);
-    });
-  };
-
-  const handleVerifyFAQ = () => {
-    setShowModal(true);
-    setModalTitle(faq.is_source ? "Hủy xác nhận" : "Xác nhận FAQ");
-    setModalMessage(faq.is_source 
-      ? "Bạn có chắc chắn muốn hủy xác nhận FAQ này không?" 
-      : "Bạn có chắc chắn muốn xác nhận FAQ này không?");
-    setModalAction("verify");
-    setModalCallback(() => () => {
-      if (onVerifyChange) {
-        onVerifyChange(faq.faq_id, !faq.is_source);
-      }
-    });
+    setModalCallback(() => () => onRemove(faq.faq_id));
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${isExpanded ? 'p-8' : 'p-6'} w-full mx-auto border border-green-300`}>
+    <div className={`bg-white rounded-lg shadow-lg transition-all duration-300 ${isExpanded ? 'p-8' : 'p-6'} w-full mx-auto border border-green-300 relative`}>
       <div className="flex flex-col space-y-4 w-full">
         {/* Header Section */}
         <div className="flex justify-between items-center w-full gap-4">
-          <div className="flex-grow min-w-0"> 
-            {isEditing && !faq.is_source ? (
+          <div className="flex-grow min-w-0">
+            {isEditing ? (
               <textarea
                 className="w-full p-4 border border-green-400 rounded-lg focus:ring-4 focus:ring-green-600 focus:border-transparent resize-none text-green-900 font-semibold"
                 value={editedQuestion}
@@ -87,41 +121,31 @@ const FAQItem: React.FC<FAQItemProps> = ({
                 placeholder="Enter question..."
               />
             ) : (
-              <div 
+              <div
                 className="text-xl font-semibold text-green-900 cursor-pointer hover:text-green-700 transition-colors border-b-2 border-green-300 pb-2 truncate"
                 onClick={() => setExpanded(!isExpanded)}
-                title={faq.question} 
+                title={faq.question}
               >
                 {faq.question}
               </div>
             )}
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0"> 
+          <div className="flex items-center gap-3 flex-shrink-0">
             <button
-              className={`p-2 rounded-lg transition-colors duration-200 ${
-                isEditing 
-                  ? 'bg-green-600 text-white hover:bg-green-700' 
+              className={`p-2 rounded-full transition-colors ${
+                isEditing
+                  ? 'bg-green-500 text-white hover:bg-green-600'
                   : 'bg-green-100 text-green-700 hover:bg-green-200'
               }`}
-              onClick={() => {
-                if (faq.is_source) {
-                  setShowModal(true);
-                  setModalTitle("Cảnh báo");
-                  setModalMessage("Bạn cần bỏ xác nhận FAQ trước khi chỉnh sửa.");
-                  setModalAction("warning");
-                  setModalCallback(() => () => {});
-                  return;
-                }
-                setEditing(!isEditing);
-              }}
+              onClick={isEditing ? handleSave : handleEdit}
             >
               {isEditing ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
               )}
             </button>
@@ -148,26 +172,26 @@ const FAQItem: React.FC<FAQItemProps> = ({
                 <label className="inline-flex items-center cursor-pointer group">
                   <input
                     type="checkbox"
-                    checked={faq.is_source}
-                    onChange={handleVerifyFAQ}
+                    checked={isVerified}
+                    onChange={handleVerifyChange}
                     className="hidden"
                   />
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 
-                    ${faq.is_source 
-                      ? 'bg-green-600 border-green-600 group-hover:bg-green-700 group-hover:border-green-700' 
+                    ${isVerified
+                      ? 'bg-green-600 border-green-600 group-hover:bg-green-700 group-hover:border-green-700'
                       : 'border-gray-300 group-hover:border-green-400'}`}
                   >
-                    {faq.is_source && (
-                      <svg 
-                        className="w-4 h-4 text-white" 
-                        fill="none" 
-                        stroke="currentColor" 
+                    {isVerified && (
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth="3" 
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="3"
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
@@ -183,7 +207,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
         {/* Answer Section */}
         {isExpanded && (
           <div className="mt-4">
-            {isEditing && !faq.is_source ? (
+            {isEditing ? (
               <div className="space-y-6">
                 <textarea
                   className="w-full p-5 border border-green-400 rounded-lg focus:ring-4 focus:ring-green-600 focus:border-transparent min-h-[200px] text-green-800"
@@ -200,6 +224,30 @@ const FAQItem: React.FC<FAQItemProps> = ({
                 <div className="w-[180px] flex-shrink-0"></div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Edit Buttons */}
+        {isEditing && (
+          <div className="flex justify-end space-x-3 mt-6 pb-12">
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>Hủy</span>
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Lưu thay đổi</span>
+            </button>
           </div>
         )}
       </div>
