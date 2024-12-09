@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import axiosInstance from '../axios-config';
 import { v4 as uuidv4 } from 'uuid'; 
@@ -16,17 +15,30 @@ interface ChatResponse {
   conversation_id: string;
 }
 
+// Variable to store the current conversation ID
+let currentConversationId: string | null = null;
+
+// Function to initialize a new conversation ID
+export function initializeNewConversation(): void {
+  currentConversationId = uuidv4();
+  localStorage.removeItem('conversation_id'); // Clear the stored conversation ID
+}
+
+// Initialize new conversation ID on page load
+initializeNewConversation();
+
 export async function sendMessage(message: string): Promise<string> {
   try {
-    // Use the same conversation ID for the same tab
-    const conversationId = localStorage.getItem('conversation_id') || uuidv4();
-    localStorage.setItem('conversation_id', conversationId);
+    // If there's no current conversation ID, initialize one
+    if (!currentConversationId) {
+      currentConversationId = uuidv4();
+    }
 
-    console.log('Sending message:', message, 'with conversation ID:', conversationId);
+    console.log('Sending message:', message, 'with conversation ID:', currentConversationId);
     const response = await axiosInstance.post<ChatResponse>(
       `/api/v1/chat`,
       {
-        conversation_id: conversationId,
+        conversation_id: currentConversationId,
         message: message,
       }
     );

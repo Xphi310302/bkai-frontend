@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, X } from "lucide-react";
-import { Message, sendMessage } from "../../services/chatbot/api.ts";
+import { Bot, X, RefreshCw } from "lucide-react";
+import { Message, sendMessage, initializeNewConversation } from "../../services/chatbot/api.ts";
 import ChatMessage from "./ChatMessage.tsx";
 import ChatInput from "./ChatInput.tsx";
 
@@ -58,6 +58,18 @@ export default function ChatBot() {
     }
   };
 
+  const handleNewConversation = () => {
+    initializeNewConversation();
+    setMessages([
+      {
+        role: "assistant",
+        content:
+          "Xin chào! Tôi là Civic Bot. Rất vui được hỗ trợ bạn với các thủ tục hành chính công. Bạn cần giúp đỡ gì ạ?",
+      },
+    ]);
+    setIsLoading(false);
+  };
+
   return (
     <div
       className={`fixed bottom-4 right-4 z-50 ${
@@ -72,12 +84,21 @@ export default function ChatBot() {
               <Bot size={24} />
               <span className="font-semibold">Civic Bot</span>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:text-gray-200 transition-colors"
-            >
-              <X size={24} />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleNewConversation}
+                className="text-white hover:text-gray-200 transition-colors p-1"
+                title="Bắt đầu cuộc trò chuyện mới"
+              >
+                <RefreshCw size={20} />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:text-gray-200 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
