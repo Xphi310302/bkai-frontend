@@ -77,13 +77,15 @@ const FAQItem: React.FC<FAQItemProps> = ({
   const handleVerifyChange = () => {
     setShowModal(true);
     if (isVerified) {
-      setModalTitle("Xác nhận bỏ xác nhận");
+      setModalTitle("Bỏ xác nhận");
       setModalMessage("Bạn có chắc chắn muốn bỏ xác nhận FAQ này không?");
+      setModalAction("warning");
+
     } else {
-      setModalTitle("Xác nhận xác nhận");
+      setModalTitle("Xác nhận");
       setModalMessage("Bạn có chắc chắn muốn xác nhận FAQ này không?");
+      setModalAction("verify");
     }
-    setModalAction("verify");
     setModalCallback(() => () => {
       setIsVerified(!isVerified);
       onVerifyChange(faq.faq_id, !isVerified);
@@ -100,7 +102,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
       return;
     }
     setShowModal(true);
-    setModalTitle("Xác nhận xóa");
+    setModalTitle("Xóa");
     setModalMessage("Bạn có chắc chắn muốn xóa FAQ này không?");
     setModalAction("delete");
     setModalCallback(() => () => onRemove(faq.faq_id));

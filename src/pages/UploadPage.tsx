@@ -3,7 +3,7 @@ import FileUploader from "../components/UploadPage/FileUploader";
 import FileTable from "../components/UploadPage/FileTable";
 import Pagination from "../components/UploadPage/Pagination";
 import { getFilesService } from "../services/files/fileReadService";
-import { deleteFileService } from "../services/files/fileDeleteService";
+import { deleteFileService, deleteFAQsByFileId } from "../services/files/fileDeleteService";
 import { getAllFAQsService } from "../services/faqs/exportService";
 import { UploadedFile } from "../components/UploadPage/types/files";
 import * as XLSX from 'xlsx';
@@ -78,7 +78,11 @@ const UploadPage: React.FC = () => {
 
   const onDeleteFile = async (fileId: string) => {
     try {
+      // First delete all FAQs associated with the file
+      await deleteFAQsByFileId(fileId);
+      // Then delete the file itself
       await deleteFileService(fileId);
+      // Refresh the file list
       fetchFiles();
     } catch (error) {
       console.error('Error deleting file:', error);

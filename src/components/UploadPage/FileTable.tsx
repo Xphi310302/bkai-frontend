@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faDownload, 
@@ -9,6 +9,7 @@ import {
   faFilePdf 
 } from "@fortawesome/free-solid-svg-icons";
 import { UploadedFile } from "./types/files";
+import ConfirmationModal from '../ConfirmationModal';
 
 interface FileTableProps {
   files: UploadedFile[];
@@ -25,6 +26,9 @@ const FileTable: React.FC<FileTableProps> = ({
   sortField,
   sortDirection 
 }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+
   const getSortIcon = (field: 'fileName' | 'dateModified') => {
     const iconClass = "absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4";
     
@@ -61,6 +65,19 @@ const FileTable: React.FC<FileTableProps> = ({
       await onDeleteFile(fileId);
     } catch (error) {
       console.error("Failed to delete file:", error);
+    }
+  };
+
+  const handleDeleteClick = (fileId: string) => {
+    setFileToDelete(fileId);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (fileToDelete) {
+      await handleDelete(fileToDelete);
+      setShowDeleteModal(false);
+      setFileToDelete(null);
     }
   };
 
@@ -161,7 +178,7 @@ const FileTable: React.FC<FileTableProps> = ({
                       />
                     </a>
                     <button
-                      onClick={() => handleDelete(file.fileId)}
+                      onClick={() => handleDeleteClick(file.fileId)}
                       className="text-red-500 hover:text-red-700 transition-colors duration-200"
                     >
                       <FontAwesomeIcon 
@@ -189,6 +206,17 @@ const FileTable: React.FC<FileTableProps> = ({
           )}
         </tbody>
       </table>
+      <ConfirmationModal
+        show={showDeleteModal}
+        title="Xác nhận xóa"
+        message="Bạn có chắc chắn muốn xóa tệp này không?"
+        action="delete"
+        onClose={() => {
+          setShowDeleteModal(false);
+          setFileToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };

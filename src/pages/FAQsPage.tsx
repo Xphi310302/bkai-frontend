@@ -4,7 +4,7 @@ import type { FAQ } from "../components/FAQsPage/types";
 import FAQItem from "../components/FAQsPage/FAQItem"; 
 import { getFileByIdService } from "../services/files/fileReadService";
 import { v4 as uuidv4 } from 'uuid';
-import ConfirmationModal from "../components/FAQsPage/ConfirmationModal";
+import ConfirmationModal from "../components/ConfirmationModal";
 import ProcessingModal from "../components/FAQsPage/ProcessingModal";
 import { useFAQ } from "../context/FAQContext";
 import { insertFAQ, deleteFAQ } from "../services/faqs/api";
