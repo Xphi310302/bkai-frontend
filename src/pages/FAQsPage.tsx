@@ -8,6 +8,9 @@ import ConfirmationModal from "../components/ConfirmationModal";
 import ProcessingModal from "../components/FAQsPage/ProcessingModal";
 import { useFAQ } from "../context/FAQContext";
 import { insertFAQ, deleteFAQ } from "../services/faqs/api";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 interface DocumentComponentProps {
   fileName: string;
@@ -122,6 +125,7 @@ const DocumentComponent: React.FC<DocumentComponentProps> = ({
 };
 
 const FAQsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { faqs, updateAllFAQs, verifyFAQ, refreshFAQs } = useFAQ();
   const [fileDetails, setFileDetails] = useState<{ fileName: string } | null>(null);
 
@@ -177,32 +181,41 @@ const FAQsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-100 to-green-200">
-      <div className="container mx-auto px-4 py-8 max-w-screen-2xl">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 p-6">
+      <button
+        onClick={() => navigate('/upload')}
+        className="mb-6 flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 font-medium group"
+      >
+        <FontAwesomeIcon 
+          icon={faArrowLeft} 
+          className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" 
+        />
+        <span>Quay lại</span>
+      </button>
+      
+      {fileDetails && (
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-green-800 mb-3">
             CÂU HỎI THƯỜNG GẶP
           </h1>
-          {fileDetails && (
-            <p className="text-xl text-green-600">
-              {`Các câu hỏi thường gặp về `}
-              <strong>{fileDetails.fileName.replace('.pdf', '')}</strong>
-            </p>
-          )}
+          <p className="text-xl text-green-600">
+            {`Các câu hỏi thường gặp về `}
+            <strong>{fileDetails.fileName.replace('.pdf', '')}</strong>
+          </p>
         </div>
-        <div className="space-y-6">
-          {Object.entries(faqs).map(([docFileId, docFaqs]) => (
-            <DocumentComponent
-              key={docFileId}
-              fileName={fileDetails?.fileName || docFileId}
-              faqs={docFaqs}
-              onUpdateAll={() => updateAllFAQs(docFileId)}
-              onRemoveFAQ={(faqId) => handleRemoveFAQ(docFileId, faqId)}
-              onAddFAQ={() => handleAddFAQ(docFileId)}
-              onVerifyFAQ={(faqId, isVerified) => verifyFAQ(docFileId, faqId, isVerified)}
-            />
-          ))}
-        </div>
+      )}
+      <div className="space-y-6">
+        {Object.entries(faqs).map(([docFileId, docFaqs]) => (
+          <DocumentComponent
+            key={docFileId}
+            fileName={fileDetails?.fileName || docFileId}
+            faqs={docFaqs}
+            onUpdateAll={() => updateAllFAQs(docFileId)}
+            onRemoveFAQ={(faqId) => handleRemoveFAQ(docFileId, faqId)}
+            onAddFAQ={() => handleAddFAQ(docFileId)}
+            onVerifyFAQ={(faqId, isVerified) => verifyFAQ(docFileId, faqId, isVerified)}
+          />
+        ))}
       </div>
     </div>
   );
