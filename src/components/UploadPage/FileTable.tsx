@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faDownload, 
@@ -26,8 +26,28 @@ const FileTable: React.FC<FileTableProps> = ({
   sortField,
   sortDirection 
 }) => {
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.file-table-container')) {
+        setSelectedFileId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleRowClick = (event: React.MouseEvent, fileId: string) => {
+    event.stopPropagation();
+    setSelectedFileId(fileId);
+  };
 
   const getSortIcon = (field: 'fileName' | 'dateModified') => {
     const iconClass = "absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4";
@@ -82,12 +102,19 @@ const FileTable: React.FC<FileTableProps> = ({
   };
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-md">
+    <div 
+      className="overflow-x-auto bg-white rounded-lg shadow-md file-table-container"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setSelectedFileId(null);
+        }
+      }}
+    >
       <table className="min-w-full table-fixed">
         <colgroup>
-          <col className="w-1/2" />
-          <col className="w-1/4" />
-          <col className="w-1/4" />
+          <col className="w-[600px]" />
+          <col className="w-[200px]" />
+          <col className="w-[150px]" />
         </colgroup>
         <thead>
           <tr>
@@ -144,26 +171,32 @@ const FileTable: React.FC<FileTableProps> = ({
             files.map((file) => (
               <tr 
                 key={file.fileId} 
-                className="transition-colors duration-150 ease-in-out hover:bg-gray-50 cursor-pointer"
+                className={`transition-colors duration-75 cursor-pointer
+                  ${selectedFileId === file.fileId 
+                    ? 'bg-[#e1ecf9] text-black' 
+                    : 'hover:bg-[#f5f9fe]'
+                  }
+                `}
+                onClick={(e) => handleRowClick(e, file.fileId)}
                 onDoubleClick={() => window.open(`/faqs?fileId=${file.fileId}`, '_blank')}
               >
-                <td className="py-4 px-6 whitespace-nowrap overflow-hidden text-ellipsis w-1/2">
-                  <div className="flex items-center space-x-3">
+                <td className="py-4 px-6 w-[400px]">
+                  <div className="flex items-start space-x-3">
                     <FontAwesomeIcon 
                       icon={faFilePdf} 
-                      className="text-red-500 w-6 h-6 flex-shrink-0" 
+                      className="text-red-500 w-6 h-6 flex-shrink-0 mt-1" 
                     />
-                    <div className="text-base font-medium text-gray-900 font-inter tracking-tight overflow-hidden text-ellipsis whitespace-nowrap">
+                    <div className="text-base font-medium text-gray-900 font-inter break-words">
                       {file.fileName}
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-6 whitespace-nowrap text-center w-1/4">
-                  <div className="text-base text-gray-500 font-roboto inline-block">
+                <td className="py-4 px-6 w-[200px] text-center">
+                  <div className="text-base text-gray-500 font-roboto">
                     {new Date(file.dateModified).toLocaleString('vi-VN')}
                   </div>
                 </td>
-                <td className="py-4 px-6 whitespace-nowrap text-sm font-medium w-1/4 text-center">
+                <td className="py-4 px-6 w-[150px] text-center">
                   <div className="flex items-center justify-center space-x-4">
                     <a
                       href={file.fileUrl}
