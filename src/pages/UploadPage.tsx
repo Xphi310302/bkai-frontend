@@ -4,9 +4,8 @@ import FileTable from "../components/UploadPage/FileTable";
 import Pagination from "../components/UploadPage/Pagination";
 import { getFilesService } from "../services/files/fileReadService";
 import { deleteFileService, deleteFAQsByFileId } from "../services/files/fileDeleteService";
-import { getAllFAQsService } from "../services/faqs/exportService";
+import { exportFAQsToExcel } from "../services/faqs/exportService";
 import { UploadedFile } from "../components/UploadPage/types/files";
-import * as XLSX from 'xlsx';
 
 type SortField = 'fileName' | 'dateModified';
 type SortDirection = 'asc' | 'desc';
@@ -110,39 +109,7 @@ const UploadPage: React.FC = () => {
           <button
             onClick={async () => {
               try {
-                // Get all FAQs
-                const allFAQs = await getAllFAQsService();
-                
-                // Create a map of fileId to fileName
-                const fileIdToName = new Map(
-                  uploadedFiles.map(file => [file.fileId, file.fileName])
-                );
-                
-                // Transform data for Excel
-                const excelData = allFAQs.map(faq => ({
-                  'Tên file': fileIdToName.get(faq.file_id) || 'Unknown',
-                  'Câu hỏi': faq.question,
-                  'Câu trả lời': faq.answer
-                }));
-
-                // Create workbook and worksheet
-                const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.json_to_sheet(excelData);
-
-                // Set column widths
-                const colWidths = [
-                  { wch: 30 }, // Tên file
-                  { wch: 50 }, // Câu hỏi
-                  { wch: 70 }  // Câu trả lời
-                ];
-                ws['!cols'] = colWidths;
-
-                // Add worksheet to workbook
-                XLSX.utils.book_append_sheet(wb, ws, "FAQs");
-
-                // Generate Excel file with current date
-                const date = new Date().toISOString().split('T')[0];
-                XLSX.writeFile(wb, `FAQs_Export_${date}.xlsx`);
+                await exportFAQsToExcel();
               } catch (error) {
                 console.error("Error exporting FAQs:", error);
               }

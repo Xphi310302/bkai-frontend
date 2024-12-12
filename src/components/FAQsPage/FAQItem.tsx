@@ -79,7 +79,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
     if (isVerified) {
       setModalTitle("Bỏ xác nhận");
       setModalMessage("Bạn có chắc chắn muốn bỏ xác nhận FAQ này không?");
-      setModalAction("warning");
+      setModalAction("verify");
 
     } else {
       setModalTitle("Xác nhận");
