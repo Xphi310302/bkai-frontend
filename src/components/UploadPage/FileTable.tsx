@@ -112,8 +112,9 @@ const FileTable: React.FC<FileTableProps> = ({
     >
       <table className="min-w-full table-fixed">
         <colgroup>
-          <col className="w-[600px]" />
+          <col className="w-[500px]" />
           <col className="w-[200px]" />
+          <col className="w-[150px]" />
           <col className="w-[150px]" />
         </colgroup>
         <thead>
@@ -162,6 +163,9 @@ const FileTable: React.FC<FileTableProps> = ({
               </div>
             </th>
             <th className="py-3 px-6 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
+              Tình Trạng
+            </th>
+            <th className="py-3 px-6 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider text-center">
               Hành động
             </th>
           </tr>
@@ -197,6 +201,15 @@ const FileTable: React.FC<FileTableProps> = ({
                   </div>
                 </td>
                 <td className="py-4 px-6 w-[150px] text-center">
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    file.isProcessing 
+                      ? 'bg-orange-100 text-orange-700' 
+                      : 'bg-green-100 text-green-700'
+                  }`}>
+                    {file.isProcessing ? 'Đang xử lý' : 'Đã xử lý'}
+                  </div>
+                </td>
+                <td className="py-4 px-6 w-[150px] text-center">
                   <div className="flex items-center justify-center space-x-4">
                     <a
                       href={file.fileUrl}
@@ -227,7 +240,7 @@ const FileTable: React.FC<FileTableProps> = ({
           ) : (
             <tr>
               <td 
-                colSpan={3} 
+                colSpan={4} 
                 className="py-8 text-center text-gray-500 bg-gray-50"
               >
                 <div className="flex flex-col items-center justify-center space-y-2">
