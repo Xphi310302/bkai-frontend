@@ -104,7 +104,7 @@ export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
       }),
       axiosInstance.put("/api/v1/modify-faq", faq),
     ]);
-
+    console.log(updateResponse.data);
     return updateResponse.data; // Return the response from the update API call
   } catch (error) {
     console.error("Error modifying FAQ:", error);
