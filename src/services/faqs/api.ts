@@ -98,7 +98,7 @@ export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
     console.log(faq);
 
     // Run both API calls in parallel
-    const [updateResponse, modifyResponse] = await Promise.all([
+    const [updateResponse] = await Promise.all([
       axiosInstance.post("/api/v1/update_faq_status", {
         faq_ids: [faq.faq_id], // Apply faq_id for updateFAQStatus
       }),
