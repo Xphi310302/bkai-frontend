@@ -83,39 +83,34 @@ export async function insertFAQ(faq: FAQ): Promise<FAQ> {
   }
 }
 
-export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
-  try {
-    const response = await axiosInstance.put('/api/v1/modify-faq', faq);
-    return response.data;
-  } catch (error) {
-    console.error("Error modifying FAQ:", error);
-    throw error;
-  }
-}
 // export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
 //   try {
-
-//     console.log(faq);
-
-//     // First API call to modify the FAQ
-//     const modifyResponse = await axiosInstance.put("/api/v1/modify-faq", faq);
-
-//     // Second API call to update the FAQ status
-//     try {
-//       await axiosInstance.post("/api/v1/update_faq_status", {
-//         faq_ids: [faq.faq_id], // Apply faq_id for updateFAQStatus
-//       });
-//     } catch (updateError) {
-//       console.error("Error updating FAQ status:", updateError);
-//       // Optionally, you can throw an error or handle it as needed
-//     }
-
-//     return modifyResponse.data; // Return the response from the modify API call
-//   } catch (modifyError) {
-//     console.error("Error modifying FAQ:", modifyError);
-//     throw modifyError; // Rethrow the error for further handling
+//     const response = await axiosInstance.put('/api/v1/modify-faq', faq);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error modifying FAQ:", error);
+//     throw error;
 //   }
 // }
+export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
+  try {
+
+    console.log(faq);
+
+    // Run both API calls in parallel
+    const [updateResponse, modifyResponse] = await Promise.all([
+      axiosInstance.post("/api/v1/update_faq_status", {
+        faq_ids: [faq.faq_id], // Apply faq_id for updateFAQStatus
+      }),
+      axiosInstance.put("/api/v1/modify-faq", faq),
+    ]);
+
+    return updateResponse.data; // Return the response from the update API call
+  } catch (error) {
+    console.error("Error modifying FAQ:", error);
+    throw error; // Rethrow the error for further handling
+  }
+}
 
 
 
