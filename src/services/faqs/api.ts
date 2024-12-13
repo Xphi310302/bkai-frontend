@@ -92,6 +92,33 @@ export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
     throw error;
   }
 }
+// export async function modifyFAQ(faq: FAQ): Promise<FAQ> {
+//   try {
+
+//     console.log(faq);
+
+//     // First API call to modify the FAQ
+//     const modifyResponse = await axiosInstance.put("/api/v1/modify-faq", faq);
+
+//     // Second API call to update the FAQ status
+//     try {
+//       await axiosInstance.post("/api/v1/update_faq_status", {
+//         faq_ids: [faq.faq_id], // Apply faq_id for updateFAQStatus
+//       });
+//     } catch (updateError) {
+//       console.error("Error updating FAQ status:", updateError);
+//       // Optionally, you can throw an error or handle it as needed
+//     }
+
+//     return modifyResponse.data; // Return the response from the modify API call
+//   } catch (modifyError) {
+//     console.error("Error modifying FAQ:", modifyError);
+//     throw modifyError; // Rethrow the error for further handling
+//   }
+// }
+
+
+
 
 export async function deleteFAQ(faqId: string): Promise<void> {
   try {

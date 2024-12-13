@@ -52,6 +52,7 @@ export const FAQProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (!faq) return;
 
       const updatedFaq = { ...faq, is_source: isVerified };
+
       await modifyFAQ(updatedFaq);
       await refreshFAQs(fileId);
     } catch (error) {
