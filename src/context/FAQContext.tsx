@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type { FAQ } from '../components/FAQsPage/types';
-import { modifyFAQ, getFAQsByFileId } from '../services/faqs/api';
+import { modifyFAQ, getFAQsByFileId, updateFAQStatus } from '../services/faqs/api';
 
 interface FAQContextType {
   faqs: { [key: string]: FAQ[] };
@@ -48,12 +48,14 @@ export const FAQProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const verifyFAQ = useCallback(async (fileId: string, faqId: string, isVerified: boolean) => {
     try {
-      const faq = faqs[fileId]?.find(f => f.faq_id === faqId);
-      if (!faq) return;
-
-      const updatedFaq = { ...faq, is_source: isVerified };
-
-      await modifyFAQ(updatedFaq);
+      if (isVerified) {
+        await updateFAQStatus([faqId]);
+      } else {
+        const faq = faqs[fileId]?.find(f => f.faq_id === faqId);
+        if (!faq) return;
+        const updatedFaq = { ...faq, is_source: false };
+        await modifyFAQ(updatedFaq);
+      }
       await refreshFAQs(fileId);
     } catch (error) {
       console.error("Error verifying FAQ:", error);
@@ -71,17 +73,9 @@ export const FAQProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
 
-      // 2. Update each unverified FAQ
-      await Promise.all(
-        unverifiedFaqs.map(async (faq) => {
-          const updatedFaq = { 
-            ...faq, 
-            is_source: true,
-            modified: new Date().toISOString()
-          };
-          await modifyFAQ(updatedFaq);
-        })
-      );
+      // 2. Update all unverified FAQs at once
+      const faqIds = unverifiedFaqs.map(faq => faq.faq_id);
+      await updateFAQStatus(faqIds);
 
       // 3. Refresh FAQs to update UI state
       await refreshFAQs(fileId);

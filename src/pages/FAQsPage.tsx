@@ -162,7 +162,7 @@ const FAQsPage: React.FC = () => {
 
   const handleAddFAQ = async (fileId: string) => {
     const newFAQ: FAQ = {
-      faq_id: `new-${uuidv4()}`,
+      faq_id: `${uuidv4()}`,
       file_id: fileId,
       question: '',
       answer: '',
