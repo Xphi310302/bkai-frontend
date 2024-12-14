@@ -102,7 +102,7 @@ export default function ChatBot() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+          <div className="flex-1 px-4 py-2 overflow-y-auto space-y-3">
             {messages.map((msg, index) => (
               <ChatMessage key={index} message={msg} />
             ))}
@@ -116,7 +116,7 @@ export default function ChatBot() {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t">
+          <div className="py-3 px-4 border-t">
             <ChatInput
               onSendMessage={handleSendMessage}
               isLoading={isLoading}

@@ -30,7 +30,7 @@ const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Nhập câu hỏi của bạn..."
-          className={`w-full p-3 rounded-lg border focus:outline-none focus:border-green-500 text-[15px] ${
+          className={`w-full px-3 pt-2 pb-1 rounded-lg border focus:outline-none focus:border-green-500 text-[15px] ${
             isLoading ? "bg-gray-100" : "bg-white"
           }`}
           disabled={isLoading}
