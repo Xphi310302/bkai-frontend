@@ -22,8 +22,11 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  // Hide navigation on login page and FAQs page
-  const showNavigation = isAuthenticated && location.pathname !== '/login' && !location.pathname.includes('/faqs');
+  // Hide navigation on login page, FAQs page, and home page
+  const showNavigation = isAuthenticated && 
+    location.pathname !== '/login' && 
+    !location.pathname.includes('/faqs') && 
+    location.pathname !== '/';
 
   // Redirect to /upload if authenticated and trying to access /login
   if (isAuthenticated && location.pathname === '/login') {
