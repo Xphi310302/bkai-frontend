@@ -10,7 +10,7 @@ import { useFAQ } from "../context/FAQContext";
 import { insertFAQ, deleteFAQ } from "../services/faqs/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 interface DocumentComponentProps {
   fileName: string;
@@ -125,7 +125,7 @@ const DocumentComponent: React.FC<DocumentComponentProps> = ({
 };
 
 const FAQsPage: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { faqs, updateAllFAQs, verifyFAQ, refreshFAQs } = useFAQ();
   const [fileDetails, setFileDetails] = useState<{ fileName: string } | null>(null);
 
@@ -183,7 +183,7 @@ const FAQsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 p-6">
       <button
-        onClick={() => navigate('/upload')}
+        onClick={() => window.close()}
         className="mb-6 flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 font-medium group"
       >
         <FontAwesomeIcon 

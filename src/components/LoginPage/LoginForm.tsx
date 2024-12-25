@@ -1,38 +1,31 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for routing
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { LockKeyhole, Mail, Loader2 } from "lucide-react";
+import { LockKeyhole, Mail, Loader2, AlertCircle } from "lucide-react";
+import { login } from '../../services/auth/api';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate(); // Initialize useNavigate
-
-  // Read admin credentials from .env
-  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "admin@gmail.com";
-  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || "12345678";
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Check if the entered credentials match the default admin credentials
-    if (email === adminEmail && password === adminPassword) {
-      console.log("Admin login successful");
-      navigate("/upload"); // Redirect to the upload page
-    } else {
-      console.log("Invalid credentials");
-      alert("Invalid email or password. Please try again.");
+    try {
+      await login({ username: email, password });
+      navigate("/upload");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -48,6 +41,12 @@ const LoginForm: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div role="alert" className="flex items-center gap-2 p-3 text-sm font-medium bg-red-50 border-l-4 border-red-500 text-red-700">
+                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">

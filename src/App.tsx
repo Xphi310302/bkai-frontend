@@ -4,6 +4,7 @@ import {
   Route,
   Routes,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import UploadPage from "./pages/UploadPage";
@@ -13,21 +14,40 @@ import Dashboard from "./pages/Dashboard";
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
 import { FAQProvider } from './context/FAQContext';
+import { AuthProvider } from './context/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  // Hide navigation on login page and FAQs page
+  const showNavigation = isAuthenticated && location.pathname !== '/login' && !location.pathname.includes('/faqs');
+
+  // Redirect to /upload if authenticated and trying to access / or /login
+  if (isAuthenticated && (location.pathname === '/' || location.pathname === '/login')) {
+    return <Navigate to="/upload" replace />;
+  }
 
   return (
     <div>
-      {location.pathname !== "/" && location.pathname !== "/login" && location.pathname !== "/faqs" && (
-        <Navigation />
-      )}
+      {showNavigation && <Navigation />}
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/upload" element={<UploadPage />} />
-        <Route path="/faqs" element={<FAQsPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<HomePage />} />
+        <Route
+          path="*"
+          element={
+            <ProtectedRoute>
+              <Routes>
+                <Route path="/upload" element={<UploadPage />} />
+                <Route path="/faqs" element={<FAQsPage />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Routes>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );
@@ -36,9 +56,11 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <Router>
-      <FAQProvider>
-        <AppContent />
-      </FAQProvider>
+      <AuthProvider>
+        <FAQProvider>
+          <AppContent />
+        </FAQProvider>
+      </AuthProvider>
     </Router>
   );
 };
