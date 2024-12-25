@@ -7,6 +7,16 @@ import { getAccessToken, getRefreshToken } from './auth/api';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
+// Create a public instance without authentication
+export const publicAxiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
+  }
+});
+
+// Create an authenticated instance
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {

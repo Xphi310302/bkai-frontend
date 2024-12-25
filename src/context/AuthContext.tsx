@@ -39,8 +39,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const authenticated = isAuthenticated();
       setIsAuth(authenticated);
       
-      // If not authenticated and not on login page, redirect to login
-      if (!authenticated && window.location.pathname !== '/login') {
+      const currentPath = window.location.pathname;
+      // Only redirect to login if not authenticated and trying to access protected routes
+      if (!authenticated && 
+          currentPath !== '/login' && 
+          currentPath !== '/' && 
+          !currentPath.startsWith('/public')) {
         navigate('/login');
       }
     };
