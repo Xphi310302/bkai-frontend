@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, RefreshCw } from "lucide-react";
-import { Message, sendMessage, initializeNewConversation } from "../../services/chatbot/api.ts";
+import {
+  Message,
+  sendMessage,
+  initializeNewConversation,
+} from "../../services/chatbot/api.ts";
 import ChatMessage from "./ChatMessage.tsx";
 import ChatInput from "./ChatInput.tsx";
 
@@ -15,7 +19,7 @@ export default function ChatBot() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
