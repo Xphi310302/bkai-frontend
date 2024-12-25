@@ -15,8 +15,8 @@ const UploadPage: React.FC = () => {
   const [currentFiles, setCurrentFiles] = useState<UploadedFile[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [sortField, setSortField] = useState<SortField>('fileName');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [sortField, setSortField] = useState<SortField>('dateModified');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const filesPerPage = 10;
 
   const sortFiles = useCallback((files: UploadedFile[]): UploadedFile[] => {
