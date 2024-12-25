@@ -18,9 +18,13 @@ const axiosInstance = axios.create({
 // Request interceptor to add auth token
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    const token = getAccessToken();
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Skip authentication for home route and public endpoints
+    const isPublicEndpoint = config.url === '/' || config.url?.startsWith('/api/v1/public');
+    if (!isPublicEndpoint) {
+      const token = getAccessToken();
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
