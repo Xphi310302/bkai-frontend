@@ -25,8 +25,8 @@ const AppContent: React.FC = () => {
   // Hide navigation on login page and FAQs page
   const showNavigation = isAuthenticated && location.pathname !== '/login' && !location.pathname.includes('/faqs');
 
-  // Redirect to /upload if authenticated and trying to access / or /login
-  if (isAuthenticated && (location.pathname === '/' || location.pathname === '/login')) {
+  // Redirect to /upload if authenticated and trying to access /login
+  if (isAuthenticated && location.pathname === '/login') {
     return <Navigate to="/upload" replace />;
   }
 
@@ -36,18 +36,23 @@ const AppContent: React.FC = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<HomePage />} />
-        <Route
-          path="*"
-          element={
-            <ProtectedRoute>
-              <Routes>
-                <Route path="/upload" element={<UploadPage />} />
-                <Route path="/faqs" element={<FAQsPage />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-              </Routes>
-            </ProtectedRoute>
-          }
-        />
+        
+        {/* Protected Routes */}
+        <Route path="/upload" element={
+          <ProtectedRoute>
+            <UploadPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/faqs" element={
+          <ProtectedRoute>
+            <FAQsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
       </Routes>
     </div>
   );
