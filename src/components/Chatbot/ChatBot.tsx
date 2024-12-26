@@ -8,6 +8,8 @@ import {
 import ChatMessage from "./ChatMessage.tsx";
 import ChatInput from "./ChatInput.tsx";
 
+const scaleFactor = 1.5;
+
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false); // Changed from true to false
   const [messages, setMessages] = useState<Message[]>([
@@ -77,11 +79,14 @@ export default function ChatBot() {
   return (
     <div
       className={`fixed bottom-4 right-4 z-50 ${
-        isOpen ? "w-[400px]" : "w-auto"
+        isOpen ? `w-[${400 * scaleFactor}px]` : "w-auto"
       }`}
     >
       {isOpen && (
-        <div className="bg-white rounded-lg shadow-xl h-[600px] flex flex-col overflow-hidden">
+        <div
+          className="bg-white rounded-lg shadow-xl flex flex-col overflow-hidden"
+          style={{ height: `${600 * scaleFactor/1.3}px` }}
+        >
           {/* Header */}
           <div className="bg-green-600 p-4 rounded-t-lg flex justify-between items-center">
             <div className="flex items-center space-x-2 text-white font-inter">
