@@ -1,13 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import { uploadToCloudinary } from "../../services/files/fileUploadService";
 import { UploadedFile } from "../UploadPage/types/files";
-
+import { Upload } from "lucide-react";
 interface FileUploaderProps {
   onUploadComplete: () => void; // Callback for when all uploads are complete
   existingFiles: UploadedFile[]; // List of existing files to check for duplicates
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, existingFiles }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({
+  onUploadComplete,
+  existingFiles,
+}) => {
   const [files, setFiles] = useState<File[]>([]); // Store the selected files
   const [error, setError] = useState<string | null>(null);
   const [duplicateFiles, setDuplicateFiles] = useState<string[]>([]);
@@ -42,30 +45,34 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, existingF
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       // Sort files alphabetically by name
-      const selectedFiles = Array.from(e.target.files).sort((a, b) => 
+      const selectedFiles = Array.from(e.target.files).sort((a, b) =>
         a.name.localeCompare(b.name)
       );
 
       // Validate file type
-      const invalidFiles = selectedFiles.filter(file => !file.type.toLowerCase().includes('pdf'));
+      const invalidFiles = selectedFiles.filter(
+        (file) => !file.type.toLowerCase().includes("pdf")
+      );
       if (invalidFiles.length > 0) {
-        setError('Chỉ chấp nhận file PDF');
+        setError("Chỉ chấp nhận file PDF");
         return;
       }
 
       // Validate file count
       if (selectedFiles.length > 10) {
-        setError('Chỉ được phép tải lên tối đa 10 file một lần');
+        setError("Chỉ được phép tải lên tối đa 10 file một lần");
         return;
       }
 
       // Check for duplicate file names
-      const duplicateFiles = selectedFiles.filter(file => 
-        existingFiles.some(existingFile => existingFile.fileName === file.name)
+      const duplicateFiles = selectedFiles.filter((file) =>
+        existingFiles.some(
+          (existingFile) => existingFile.fileName === file.name
+        )
       );
 
       if (duplicateFiles.length > 0) {
-        setDuplicateFiles(duplicateFiles.map(f => f.name));
+        setDuplicateFiles(duplicateFiles.map((f) => f.name));
         return;
       }
 
@@ -82,7 +89,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, existingF
       try {
         setUploadingCount((prev) => prev + 1);
         await uploadToCloudinary(file, () => {});
-        setUploadedFiles(prev => [...prev, file]);
+        setUploadedFiles((prev) => [...prev, file]);
       } catch (err) {
         console.error(`Error uploading file ${file.name}:`, err);
         setError(`Lỗi tải tệp ${file.name}. Vui lòng thử lại!`);
@@ -102,8 +109,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, existingF
     }
   };
 
-  const calculateProgress = () => 
-    uploadingCount > 0 ? ((uploadedFiles.length) / files.length) * 100 : 0;
+  const calculateProgress = () =>
+    uploadingCount > 0 ? (uploadedFiles.length / files.length) * 100 : 0;
 
   const closeDuplicatePopup = () => {
     setDuplicateFiles([]);
@@ -123,27 +130,27 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadComplete, existingF
         onClick={openFileDialog}
         className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
       >
-        Tải tệp lên
+        <Upload className="inline w-4 h-4 mr-1" /> <strong>Tải lên</strong>
       </button>
 
-      {error && (
-        <div className="text-red-500 mt-2">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-500 mt-2">{error}</div>}
 
       {duplicateFiles.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-            <h2 className="text-xl font-bold text-red-600 mb-4">Tệp đã tồn tại</h2>
+            <h2 className="text-xl font-bold text-red-600 mb-4">
+              Tệp đã tồn tại
+            </h2>
             <p className="mb-4">Các tệp sau đã tồn tại trong hệ thống:</p>
             <ul className="list-disc list-inside mb-4">
               {duplicateFiles.map((fileName, index) => (
-                <li key={index} className="text-gray-700">{fileName}</li>
+                <li key={index} className="text-gray-700">
+                  {fileName}
+                </li>
               ))}
             </ul>
             <div className="flex justify-end">
-              <button 
+              <button
                 onClick={closeDuplicatePopup}
                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
               >

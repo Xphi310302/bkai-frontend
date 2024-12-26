@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Upload, ChartNoAxesCombined, Home, LogOut } from "lucide-react"; 
+import { FileText, ChartNoAxesCombined, Home, LogOut } from "lucide-react";
 import { logout } from "../services/auth/api";
 
 const Navigation: React.FC = () => {
@@ -13,7 +13,8 @@ const Navigation: React.FC = () => {
       path: "/upload",
       label: (
         <>
-          <Upload className="inline w-4 h-4 mr-1" /> <strong>Tải lên</strong>
+          <FileText className="inline w-4 h-4 mr-1" />{" "}
+          <strong>Quản Lý Dữ Liệu</strong>
         </>
       ),
     },
@@ -22,7 +23,7 @@ const Navigation: React.FC = () => {
       label: (
         <>
           <ChartNoAxesCombined className="inline w-4 h-4 mr-1" />{" "}
-          <strong>Bảng điều khiển</strong>
+          <strong>Bảng Điều Khiển</strong>
         </>
       ),
     },
@@ -78,7 +79,7 @@ const Navigation: React.FC = () => {
           <button onClick={handleSignOut} className={navButtonClass(false)}>
             <div className="flex items-center">
               <LogOut className="w-5 h-5 mr-2" />
-              <strong>Đăng xuất</strong>
+              <strong>Đăng Xuất</strong>
             </div>
           </button>
         </div>
