@@ -72,7 +72,7 @@ export default React.memo(function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`max-w-[90%] rounded-lg px-3 pt-2 pb-1 font-inter ${
           message.role === "user"
-            ? "bg-green-600 text-white [&_a]:text-white [&_a:hover]:text-gray-200 [&_code]:bg-green-700 [&_blockquote]:border-green-400 whitespace-pre-wrap" // Added whitespace-pre-wrap
+            ? "bg-green-600 text-white [&_a]:text-white [&_a:hover]:text-gray-200 [&_code]:bg-green-700 [&_blockquote]:border-green-400 whitespace-pre-wrap break-words" // Added break-words
             : "bg-teal-100 text-black [&_code]:bg-teal-200 [&_blockquote]:border-teal-300"
         }`}
       >
