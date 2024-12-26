@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Upload, ChartNoAxesCombined, Home, LogOut } from "lucide-react"; 
 import { logout } from "../services/auth/api";
 
 const Navigation: React.FC = () => {
@@ -9,13 +9,28 @@ const Navigation: React.FC = () => {
   const [activeLink, setActiveLink] = useState(location.pathname);
 
   const navLinks = [
-    { path: "/upload", label: <strong>Tải lên</strong> },
-    { path: "/dashboard", label: <strong>Bảng điều khiển</strong> },
+    {
+      path: "/upload",
+      label: (
+        <>
+          <Upload className="inline w-4 h-4 mr-1" /> <strong>Tải lên</strong>
+        </>
+      ),
+    },
+    {
+      path: "/dashboard",
+      label: (
+        <>
+          <ChartNoAxesCombined className="inline w-4 h-4 mr-1" />{" "}
+          <strong>Bảng điều khiển</strong>
+        </>
+      ),
+    },
   ];
 
   const handleSignOut = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const navButtonClass = (isActive: boolean) => `
@@ -27,12 +42,13 @@ const Navigation: React.FC = () => {
     px-3
     py-2
     rounded-lg
-    ${isActive ? "bg-green-800 shadow-lg" : "hover:bg-green-800 hover:shadow-lg"}
+    ${
+      isActive ? "bg-green-800 shadow-lg" : "hover:bg-green-800 hover:shadow-lg"
+    }
     transform
     hover:scale-105
     active:scale-95
   `;
-
   return (
     <nav className="bg-gradient-to-r from-green-600 to-green-700 py-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
@@ -41,6 +57,8 @@ const Navigation: React.FC = () => {
           onClick={() => setActiveLink("/")}
           className={navButtonClass(activeLink === "/")}
         >
+          <Home className="inline w-4 h-4 mr-1" />{" "}
+          {/* Add icon for Trang Chủ */}
           Trang Chủ
         </Link>
         <div className="flex items-center space-x-6">
@@ -57,10 +75,7 @@ const Navigation: React.FC = () => {
               </li>
             ))}
           </ul>
-          <button
-            onClick={handleSignOut}
-            className={navButtonClass(false)}
-          >
+          <button onClick={handleSignOut} className={navButtonClass(false)}>
             <div className="flex items-center">
               <LogOut className="w-5 h-5 mr-2" />
               <strong>Đăng xuất</strong>
