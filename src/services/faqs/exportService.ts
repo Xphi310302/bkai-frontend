@@ -17,8 +17,8 @@ export const getAllFAQsService = async (): Promise<FAQResponse[]> => {
 
 export const exportFAQsToExcel = async () => {
   try {
-    const response = await axiosInstance.get('/api/v1/export_faqs', {
-      responseType: 'blob'
+    const response = await axiosInstance.get("/api/v1/export-faqs", {
+      responseType: "blob",
     });
     
     // Create a URL for the blob
